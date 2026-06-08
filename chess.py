@@ -21,6 +21,8 @@ def game_loop(game_state, clock, screen):
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 running = False
+            elif event.type == pg.MOUSEBUTTONDOWN:
+                game_state.handle_mouse_click(pg.mouse.get_pos())
         
         game_state.draw_game_state(screen)
         pg.display.update()
