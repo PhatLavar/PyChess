@@ -1,7 +1,7 @@
 import pygame as pg
 
 class Board:
-    SCREEN_SIZE = 800
+    SCREEN_SIZE = 512
     DIMENSION = 8
     SQUARE_SIZE = SCREEN_SIZE // DIMENSION
     
