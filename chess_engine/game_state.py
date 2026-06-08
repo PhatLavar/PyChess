@@ -26,31 +26,31 @@ class GameState:
     def draw_game_state(self, screen):
         def draw_board(screen):
             colors = [pg.Color('white'), pg.Color('gray')]
-            for row in range(Board().DIMENSION):
-                for col in range(Board().DIMENSION):
+            for row in range(self.board.DIMENSION):
+                for col in range(self.board.DIMENSION):
                     pg.draw.rect(
                         screen, 
                         colors[(row + col) % 2], 
                         pg.Rect(
-                            col * Board().SQUARE_SIZE, 
-                            row * Board().SQUARE_SIZE, 
-                            Board().SQUARE_SIZE, 
-                            Board().SQUARE_SIZE
+                            col * self.board.SQUARE_SIZE, 
+                            row * self.board.SQUARE_SIZE, 
+                            self.board.SQUARE_SIZE, 
+                            self.board.SQUARE_SIZE
                         )
                     )
 
         def draw_pieces(screen, board):
-            for row in range(Board().DIMENSION):
-                for col in range(Board().DIMENSION):
+            for row in range(self.board.DIMENSION):
+                for col in range(self.board.DIMENSION):
                     piece = board[row][col]
                     if piece != '--':
                         screen.blit(
                             self.PIECE_IMAGES[piece], 
                             pg.Rect(
-                                col * Board().SQUARE_SIZE, 
-                                row * Board().SQUARE_SIZE, 
-                                Board().SQUARE_SIZE, 
-                                Board().SQUARE_SIZE 
+                                col * self.board.SQUARE_SIZE, 
+                                row * self.board.SQUARE_SIZE, 
+                                self.board.SQUARE_SIZE, 
+                                self.board.SQUARE_SIZE 
                             )
                         )
 
