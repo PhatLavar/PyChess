@@ -90,9 +90,9 @@ class GameState:
 
         # rule: same color -> no harm
         if target_color is not None and moved_color == target_color:
-            print(f"Illegal move: same color at target ({moved_piece} -> {target_piece})")
-            self.selected_square = ()
             self.player_clicked = []
+            self.selected_square = ()
+            self.player_clicked.append(target_square)
             return
 
         capture = target_piece != '--'
