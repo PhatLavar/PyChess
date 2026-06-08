@@ -11,8 +11,8 @@ class GameState:
         self.move_log = []
 
         self.PIECE_IMAGES = {}
-        self.selected_square = ()
-        self.player_clicked = []
+        self.selected_square = ()   # (row, col)
+        self.player_clicked = []    # [(moved_row, moved_col), (target_row, target_col)]
 
 
     def load_piece_images(self):
