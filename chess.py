@@ -13,8 +13,9 @@ def chess():
     game_state = GameState()
     game_state.load_piece_images()
     
-    ############################################# 
-    # GAME LOOP
+    game_loop(game_state, clock, screen)
+
+def game_loop(game_state, clock, screen):
     running = True
     while running:
         for event in pg.event.get():
@@ -23,9 +24,7 @@ def chess():
         
         game_state.draw_game_state(screen)
         pg.display.update()
-        clock.tick(Animation().MAX_FPS)
-    # Stardard = 15 FPS
-    #############################################
+        clock.tick(Animation().MAX_FPS) #60 FPS
 
 if __name__ == '__main__':
     chess()
