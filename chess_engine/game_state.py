@@ -62,7 +62,7 @@ class GameState:
         col = mouse_location[0] // self.board.SQUARE_SIZE
         row = mouse_location[1] // self.board.SQUARE_SIZE
         
-        if (row, col) == self.selected_square:
+        if (row, col) == self.selected_square or (self.board.board[row][col] == '--' and len(self.player_clicked) == 0):
             self.selected_square = ()
             self.player_clicked = []
         else:
