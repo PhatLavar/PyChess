@@ -19,6 +19,10 @@ class GameState:
         self.target_piece = None
 
 
+
+    ####################################################################################
+    # ----------------------------- DRAW BOARD AND PIECES ------------------------------
+    ####################################################################################
     def load_piece_images(self):
         for piece in Piece.PIECES:
             self.PIECE_IMAGES[piece] = pg.transform.scale(
@@ -62,6 +66,10 @@ class GameState:
         draw_pieces(screen, self.board.board)
 
 
+
+    ####################################################################################
+    # --------------------------- HANDLE CLICK INTERACTION -----------------------------
+    ####################################################################################
     def handle_mouse_click(self, mouse_location):
         col = mouse_location[0] // self.board.SQUARE_SIZE
         row = mouse_location[1] // self.board.SQUARE_SIZE

@@ -4,7 +4,11 @@ class Move:
         self.move_log = []          # ["wP e2->e4", "wP e2->e4 x bP"]
         self.notation = []          # {'moved_piece', 'moved_square', 'target_piece', 'target_square', 'capture'}
 
-    
+
+
+    ####################################################################################
+    # ------------------------------- HANDLE PIECE MOVE --------------------------------
+    ####################################################################################
     def handle_selected_piece_move(self, moved_square, target_square):
         if self.game_state.moved_piece == '--':
             self.game_state.selected_square = ()
@@ -44,7 +48,11 @@ class Move:
         self.game_state.player_clicked = []
         self.game_state.white_to_move = not self.game_state.white_to_move
 
-    
+
+
+    ####################################################################################
+    # -------------------------------- RECORD MOVE LOG ---------------------------------
+    ####################################################################################
     def record_move(self, moved_piece, moved_square, target_piece, target_square, capture, redo = False):
         """
         Format, store and print a simple move notation.
@@ -71,7 +79,11 @@ class Move:
         self.move_log.append(move_log)
         print(move_log)
 
-    
+
+
+    ####################################################################################
+    # ------------------------------- HANDLE UNDO MOVE ---------------------------------
+    ####################################################################################
     def handle_undo_move(self):
         if len(self.notation) == 0:
             return
@@ -101,4 +113,37 @@ class Move:
 
     def get_all_valid_moves(self, chess_piece):
         self.get_all_possible_moves # we won't consider the check after moving! (yet)
+
+    
+    ####################################################################################
+    # --------------------------------- PIECES MOVE ------------------------------------
+    ####################################################################################
+    def get_pawn_move(self):
+        pass
+
+
+    def get_rook_move(self):
+        pass
+
+
+    def get_bishop_move(self):
+        pass
+
+
+    def get_knight_move(self):
+        pass
+
+
+    def get_king_move(self):
+        pass
+
+
+    def get_queen_move(self):
+        pass
+
+
+
+
+
+
 
