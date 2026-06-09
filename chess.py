@@ -15,6 +15,7 @@ def chess():
     
     game_loop(game_state, clock, screen)
 
+
 def game_loop(game_state, clock, screen):
     running = True
     while running:
@@ -23,10 +24,14 @@ def game_loop(game_state, clock, screen):
                 running = False
             elif event.type == pg.MOUSEBUTTONDOWN:
                 game_state.handle_mouse_click(pg.mouse.get_pos())
+            elif event.type == pg.KEYDOWN:
+                if event.key == pg.K_z:
+                    game_state.handle_undo_move()
         
         game_state.draw_game_state(screen)
         pg.display.update()
         clock.tick(Animation().MAX_FPS) #60 FPS
+
 
 if __name__ == '__main__':
     chess()
