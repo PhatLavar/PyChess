@@ -10,7 +10,7 @@ class GameState:
         self.board = Board()
 
         self.move_log = []          # ["wP e2->e4", "wP e2->e4 x bP"]
-        self.notation = []          # {'moved_piece', 'moved_square', 'target_piece', 'target_square', 'target_prev_piece', 'capture'}
+        self.notation = []          # {'moved_piece', 'moved_square', 'target_piece', 'target_square', 'capture'}
 
         self.PIECE_IMAGES = {}
         self.selected_square = ()   # (row, col)
@@ -114,7 +114,6 @@ class GameState:
             'moved_square': moved_square,
             'target_piece': self.target_piece,
             'target_square': target_square,
-            'target_prev_piece': self.target_piece,
             'capture': capture,
         })
 
@@ -159,7 +158,7 @@ class GameState:
         moved_square = last_move['moved_square']
         target_square = last_move['target_square']
         moved_piece = last_move['moved_piece']
-        target_prev_piece = last_move['target_prev_piece']
+        target_prev_piece = last_move['target_piece']
 
         self.board.board[moved_square[0]][moved_square[1]] = moved_piece
         self.board.board[target_square[0]][target_square[1]] = target_prev_piece
