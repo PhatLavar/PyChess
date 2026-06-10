@@ -191,7 +191,7 @@ class Move:
                 if row == 6 and self.game_state.board.board[row - 2][col] == "--":
                     possible_moves.append( ((row, col), (row - 2, col)) )
 
-            #Captures to the left diagonal
+            # Captures to the left diagonal
             if col - 1 >= 0:
                 target_piece = self.game_state.board.board[row - 1][col - 1]
                 if target_piece != '--' and target_piece[0] == 'b':
@@ -250,4 +250,6 @@ class Move:
 
 
     def get_knight_move(self, row, col, possible_moves):
-        pass
+        directions = [(-2, -1), (-2, 1), (-1, -2), (-1, 2), (1, -2), (1, 2), (2, -1), (2, 1)]
+        max_steps = 1
+        self.get_sliding_moves(row, col, directions, possible_moves, max_steps)
