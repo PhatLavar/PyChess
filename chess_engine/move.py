@@ -105,40 +105,66 @@ class Move:
         self.game_state.selected_square = ()
         self.game_state.player_clicked = []
         self.game_state.white_to_move = not self.game_state.white_to_move
-    
-
-    def get_all_possible_moves(self, chess_piece):
-        pass
 
 
-    def get_all_valid_moves(self, chess_piece):
-        self.get_all_possible_moves # we won't consider the check after moving! (yet)
 
-    
     ####################################################################################
-    # --------------------------------- PIECES MOVE ------------------------------------
+    # ----------------------------- GET ALL VALID MOVES --------------------------------
     ####################################################################################
-    def get_pawn_move(self):
+    def get_all_valid_moves(self):
+        valid_moves = [] # [((moved_row, moved_col), (target_row, target_col))]
+        self.get_all_possible_moves() # we won't consider the check after moving! (yet)
+
+
+    def get_all_possible_moves(self):
+        possible_moves = [] # [((moved_row, moved_col), (target_row, target_col))]
+
+        for row in self.game_state.board.DIMENSION:
+            for col in self.game_state.board.DIMENSION:
+                chess_piece = self.game_state.board.board[row][col]
+                if chess_piece != "--":
+                    turn = chess_piece[0]
+                    if (turn == 'w' and self.game_state.white_to_move) or (turn == 'b' and not self.game_state.white_to_move):
+                        match chess_piece[2]:
+                            case 'P':
+                                return self.get_pawn_move(turn, row, col)
+                            case 'R':
+                                return self.get_rook_move(turn, row, col)
+                            case 'B':
+                                return self.get_bishop_move(turn, row, col)
+                            case 'N':
+                                return self.get_knight_move(turn, row, col)
+                            case 'K':
+                                return self.get_king_move(turn, row, col)
+                            case 'Q':
+                                return self.get_queen_move(turn, row, col)
+
+
+
+    ####################################################################################
+    # ------------------------------ GET PIECES' MOVES ---------------------------------
+    ####################################################################################
+    def get_pawn_move(self, turn, row, col):
         pass
 
 
-    def get_rook_move(self):
+    def get_rook_move(self, turn, row, col):
         pass
 
 
-    def get_bishop_move(self):
+    def get_bishop_move(self, turn, row, col):
         pass
 
 
-    def get_knight_move(self):
+    def get_knight_move(self, turn, row, col):
         pass
 
 
-    def get_king_move(self):
+    def get_king_move(self, turn, row, col):
         pass
 
 
-    def get_queen_move(self):
+    def get_queen_move(self, turn, row, col):
         pass
 
 
