@@ -144,17 +144,17 @@ class Move:
                     if (turn == 'w' and self.game_state.white_to_move) or (turn == 'b' and not self.game_state.white_to_move):
                         match chess_piece[1]:
                             case 'P':
-                                self.get_pawn_move(turn, row, col, possible_moves)
+                                self.get_pawn_move(row, col, possible_moves)
                             case 'R':
-                                self.get_rook_move(turn, row, col, possible_moves)
+                                self.get_rook_move(row, col, possible_moves)
                             case 'B':
-                                self.get_bishop_move(turn, row, col, possible_moves)
+                                self.get_bishop_move(row, col, possible_moves)
                             case 'N':
-                                self.get_knight_move(turn, row, col, possible_moves)
+                                self.get_knight_move(row, col, possible_moves)
                             case 'K':
-                                self.get_king_move(turn, row, col, possible_moves)
+                                self.get_king_move(row, col, possible_moves)
                             case 'Q':
-                                self.get_queen_move(turn, row, col, possible_moves)
+                                self.get_queen_move(row, col, possible_moves)
         
         return possible_moves
 
@@ -163,8 +163,8 @@ class Move:
     ####################################################################################
     # ------------------------------ GET PIECES' MOVES ---------------------------------
     ####################################################################################
-    def get_pawn_move(self, turn, row, col, possible_moves):
-        if turn == 'w':
+    def get_pawn_move(self, row, col, possible_moves):
+        if self.game_state.white_to_move:
             if row == 0: return # pawn promotion later!
 
             # 1 and 2 square advanced
@@ -185,8 +185,7 @@ class Move:
                 if target_piece != '--' and target_piece[0] == 'b':
                     possible_moves.append( ((row, col), (row - 1, col + 1)) )
 
-
-        elif turn == 'b':
+        else:
             if row == 7: return # pawn promotion later!
 
             # 1 and 2 square advance
@@ -208,23 +207,23 @@ class Move:
                     possible_moves.append( ((row, col), (row + 1, col + 1)) )
 
 
-    def get_rook_move(self, turn, row, col, possible_moves):
+    def get_rook_move(self, row, col, possible_moves):
         pass
 
 
-    def get_bishop_move(self, turn, row, col, possible_moves):
+    def get_bishop_move(self, row, col, possible_moves):
         pass
 
 
-    def get_knight_move(self, turn, row, col, possible_moves):
+    def get_knight_move(self, row, col, possible_moves):
         pass
 
 
-    def get_king_move(self, turn, row, col, possible_moves):
+    def get_king_move(self, row, col, possible_moves):
         pass
 
 
-    def get_queen_move(self, turn, row, col, possible_moves):
+    def get_queen_move(self, row, col, possible_moves):
         pass
 
 
