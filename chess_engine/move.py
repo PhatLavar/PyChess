@@ -26,12 +26,6 @@ class Move:
         valid_moves = self.get_valid_moves()
         current_move = (moved_square, target_square)
 
-        if current_move not in valid_moves:
-            self.record_move(self.game_state.moved_piece, moved_square, self.game_state.target_piece, target_square, move_type='INVALID')
-            self.game_state.selected_square = ()
-            self.game_state.player_clicked = []
-            return
-
         def color_of(piece):
             # 'w' or 'b'
             return None if piece == '--' else piece[0]
@@ -44,6 +38,12 @@ class Move:
             self.game_state.player_clicked = []
             self.game_state.selected_square = ()
             self.game_state.player_clicked.append(target_square)
+            return
+        
+        if current_move not in valid_moves:
+            self.record_move(self.game_state.moved_piece, moved_square, self.game_state.target_piece, target_square, move_type='INVALID')
+            self.game_state.selected_square = ()
+            self.game_state.player_clicked = []
             return
 
         capture = self.game_state.target_piece != '--'
