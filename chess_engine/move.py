@@ -19,9 +19,9 @@ class Move:
         current_move = (moved_square, target_square)
 
         if current_move not in valid_moves:
+            self.record_move(self.game_state.moved_piece, moved_square, self.game_state.target_piece, target_square, move_type='INVALID')
             self.game_state.selected_square = ()
             self.game_state.player_clicked = []
-            print(f"Invalid move attempted: {self.square_to_notation(moved_square)} -> {self.square_to_notation(target_square)}")
             return
 
         def color_of(piece):
@@ -43,7 +43,7 @@ class Move:
         self.game_state.board.board[moved_square[0]][moved_square[1]] = '--'
 
         # record the move and save undo metadata
-        self.record_move(self.game_state.moved_piece, moved_square, self.game_state.target_piece, target_square, capture)
+        self.record_move(self.game_state.moved_piece, moved_square, self.game_state.target_piece, target_square, move_type='MOVE')
         self.notation.append({
             'moved_piece': self.game_state.moved_piece,
             'moved_square': moved_square,
@@ -70,21 +70,28 @@ class Move:
             return f"{file}{rank}"
     
 
-    def record_move(self, moved_piece, moved_square, target_piece, target_square, capture, redo = False):
+    def record_move(self, moved_piece, moved_square, target_piece, target_square, move_type='MOVE'):
         """
         Format, store and print a simple move notation.
         Example: 'wP e2->e4' or 'wP e2->e4 x bP' when capturing.
+
+        Accepted move_types: 'MOVE', 'CAPTURE', 'REDO', 'INVALID'
         """
+        if move_type == 'MOVE' and target_piece != '--':
+            move_type = 'CAPTURE'
+
         from_notation = self.square_to_notation(moved_square)
         to_notation = self.square_to_notation(target_square)
 
-        if redo:
-            move_log = f"[REDO] {moved_piece} {from_notation}->{to_notation}"
-        else:
-            move_log = f"{moved_piece} {from_notation}->{to_notation}"
+        move_details = f"{moved_piece} {from_notation}->{to_notation}"
+        if move_type == 'CAPTURE':
+            move_details += f" x {target_piece}"
+        elif move_type == 'REDO':
+            if target_piece != '--':
+                move_details += f"; {target_piece} {from_notation}"
 
-        if capture:
-            move_log += f" x {target_piece}"
+        # Combine flag and details
+        move_log = f"[{move_type}] {move_details}"
         
         self.move_log.append(move_log)
         print(move_log)
@@ -110,7 +117,7 @@ class Move:
         if len(self.move_log) > 0:
             self.move_log.pop()
 
-        self.record_move(moved_piece, target_square, target_prev_piece, moved_square, last_move['capture'], True)
+        self.record_move(moved_piece, target_square, target_prev_piece, moved_square, move_type='REDO')
 
         self.game_state.selected_square = ()
         self.game_state.player_clicked = []
