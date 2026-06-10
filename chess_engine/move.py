@@ -3,6 +3,14 @@ class Move:
         self.game_state = game_state
         self.move_log = []          # ["wP e2->e4", "wP e2->e4 x bP"]
         self.notation = []          # {'moved_piece', 'moved_square', 'target_piece', 'target_square', 'capture'}
+        self.get_move_functions = {
+            'P': self.get_pawn_move,
+            'R': self.get_rook_move,
+            'B': self.get_bishop_move,
+            'N': self.get_knight_move,
+            'K': self.get_king_move,
+            'Q': self.get_queen_move,
+        }
 
 
 
@@ -142,19 +150,7 @@ class Move:
                 if chess_piece != "--":
                     turn = chess_piece[0]
                     if (turn == 'w' and self.game_state.white_to_move) or (turn == 'b' and not self.game_state.white_to_move):
-                        match chess_piece[1]:
-                            case 'P':
-                                self.get_pawn_move(row, col, possible_moves)
-                            case 'R':
-                                self.get_rook_move(row, col, possible_moves)
-                            case 'B':
-                                self.get_bishop_move(row, col, possible_moves)
-                            case 'N':
-                                self.get_knight_move(row, col, possible_moves)
-                            case 'K':
-                                self.get_king_move(row, col, possible_moves)
-                            case 'Q':
-                                self.get_queen_move(row, col, possible_moves)
+                        self.get_move_functions[chess_piece[1]](row, col, possible_moves)
         
         return possible_moves
 
