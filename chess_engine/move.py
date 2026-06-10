@@ -14,6 +14,15 @@ class Move:
             self.game_state.selected_square = ()
             self.game_state.player_clicked = []
             return
+        
+        valid_moves = self.get_valid_moves()
+        current_move = (moved_square, target_square)
+
+        if current_move not in valid_moves:
+            self.game_state.selected_square = ()
+            self.game_state.player_clicked = []
+            print(f"Invalid move attempted: {self.square_to_notation(moved_square)} -> {self.square_to_notation(target_square)}")
+            return
 
         def color_of(piece):
             # 'w' or 'b'
@@ -53,20 +62,21 @@ class Move:
     ####################################################################################
     # -------------------------------- RECORD MOVE LOG ---------------------------------
     ####################################################################################
-    def record_move(self, moved_piece, moved_square, target_piece, target_square, capture, redo = False):
-        """
-        Format, store and print a simple move notation.
-        Example: 'wP e2->e4' or 'wP e2->e4 x bP' when capturing.
-        """
-        def square_to_notation(square):
+    def square_to_notation(self, square):
             files = 'abcdefgh'
             row, col = square
             file = files[col]
             rank = str(self.game_state.board.DIMENSION - row)
             return f"{file}{rank}"
+    
 
-        from_notation = square_to_notation(moved_square)
-        to_notation = square_to_notation(target_square)
+    def record_move(self, moved_piece, moved_square, target_piece, target_square, capture, redo = False):
+        """
+        Format, store and print a simple move notation.
+        Example: 'wP e2->e4' or 'wP e2->e4 x bP' when capturing.
+        """
+        from_notation = self.square_to_notation(moved_square)
+        to_notation = self.square_to_notation(target_square)
 
         if redo:
             move_log = f"[REDO] {moved_piece} {from_notation}->{to_notation}"
@@ -111,60 +121,103 @@ class Move:
     ####################################################################################
     # ----------------------------- GET ALL VALID MOVES --------------------------------
     ####################################################################################
-    def get_all_valid_moves(self):
+    def get_valid_moves(self):
         valid_moves = [] # [((moved_row, moved_col), (target_row, target_col))]
-        self.get_all_possible_moves() # we won't consider the check after moving! (yet)
+        return self.get_all_possible_moves() # we won't consider the check after moving! (yet)
 
 
     def get_all_possible_moves(self):
         possible_moves = [] # [((moved_row, moved_col), (target_row, target_col))]
 
-        for row in self.game_state.board.DIMENSION:
-            for col in self.game_state.board.DIMENSION:
+        for row in range(self.game_state.board.DIMENSION):
+            for col in range(self.game_state.board.DIMENSION):
                 chess_piece = self.game_state.board.board[row][col]
                 if chess_piece != "--":
                     turn = chess_piece[0]
                     if (turn == 'w' and self.game_state.white_to_move) or (turn == 'b' and not self.game_state.white_to_move):
-                        match chess_piece[2]:
+                        match chess_piece[1]:
                             case 'P':
-                                return self.get_pawn_move(turn, row, col)
+                                self.get_pawn_move(turn, row, col, possible_moves)
                             case 'R':
-                                return self.get_rook_move(turn, row, col)
+                                self.get_rook_move(turn, row, col, possible_moves)
                             case 'B':
-                                return self.get_bishop_move(turn, row, col)
+                                self.get_bishop_move(turn, row, col, possible_moves)
                             case 'N':
-                                return self.get_knight_move(turn, row, col)
+                                self.get_knight_move(turn, row, col, possible_moves)
                             case 'K':
-                                return self.get_king_move(turn, row, col)
+                                self.get_king_move(turn, row, col, possible_moves)
                             case 'Q':
-                                return self.get_queen_move(turn, row, col)
+                                self.get_queen_move(turn, row, col, possible_moves)
+        
+        return possible_moves
 
 
 
     ####################################################################################
     # ------------------------------ GET PIECES' MOVES ---------------------------------
     ####################################################################################
-    def get_pawn_move(self, turn, row, col):
+    def get_pawn_move(self, turn, row, col, possible_moves):
+        if turn == 'w':
+            if row == 0: return # pawn promotion later!
+
+            # 1 and 2 square advanced
+            if self.game_state.board.board[row - 1][col] == "--":
+                possible_moves.append( ((row, col), (row - 1, col)) )
+                if row == 6 and self.game_state.board.board[row - 2][col] == "--":
+                    possible_moves.append( ((row, col), (row - 2, col)) )
+
+            #Captures to the left diagonal
+            if col - 1 >= 0:
+                target_piece = self.game_state.board.board[row - 1][col - 1]
+                if target_piece != '--' and target_piece[0] == 'b':
+                    possible_moves.append( ((row, col), (row - 1, col - 1)) )
+
+            # Captures to the right diagonal
+            if col + 1 < self.game_state.board.DIMENSION:
+                target_piece = self.game_state.board.board[row - 1][col + 1]
+                if target_piece != '--' and target_piece[0] == 'b':
+                    possible_moves.append( ((row, col), (row - 1, col + 1)) )
+
+
+        elif turn == 'b':
+            if row == 7: return # pawn promotion later!
+
+            # 1 and 2 square advance
+            if self.game_state.board.board[row + 1][col] == "--":
+                possible_moves.append( ((row, col), (row + 1, col)) )
+                if row == 1 and self.game_state.board.board[row + 2][col] == "--":
+                    possible_moves.append( ((row, col), (row + 2, col)) )
+            
+            # Captures to the left diagonal
+            if col - 1 >= 0:
+                target_piece = self.game_state.board.board[row + 1][col - 1]
+                if target_piece != '--' and target_piece[0] == 'w':
+                    possible_moves.append( ((row, col), (row + 1, col - 1)) )
+
+            # Captures to the right diagonal
+            if col + 1 < self.game_state.board.DIMENSION:
+                target_piece = self.game_state.board.board[row + 1][col + 1]
+                if target_piece != '--' and target_piece[0] == 'w':
+                    possible_moves.append( ((row, col), (row + 1, col + 1)) )
+
+
+    def get_rook_move(self, turn, row, col, possible_moves):
         pass
 
 
-    def get_rook_move(self, turn, row, col):
+    def get_bishop_move(self, turn, row, col, possible_moves):
         pass
 
 
-    def get_bishop_move(self, turn, row, col):
+    def get_knight_move(self, turn, row, col, possible_moves):
         pass
 
 
-    def get_knight_move(self, turn, row, col):
+    def get_king_move(self, turn, row, col, possible_moves):
         pass
 
 
-    def get_king_move(self, turn, row, col):
-        pass
-
-
-    def get_queen_move(self, turn, row, col):
+    def get_queen_move(self, turn, row, col, possible_moves):
         pass
 
 
