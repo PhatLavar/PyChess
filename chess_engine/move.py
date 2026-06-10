@@ -7,9 +7,9 @@ class Move:
             'P': self.get_pawn_move,
             'R': self.get_rook_move,
             'B': self.get_bishop_move,
-            'N': self.get_knight_move,
-            'K': self.get_king_move,
             'Q': self.get_queen_move,
+            'K': self.get_king_move,
+            'N': self.get_knight_move,
         }
 
 
@@ -159,6 +159,28 @@ class Move:
     ####################################################################################
     # ------------------------------ GET PIECES' MOVES ---------------------------------
     ####################################################################################
+    def get_sliding_moves(self, row, col, directions, possible_moves, max_steps):
+        enemy_color = 'b' if self.game_state.white_to_move else 'w'
+
+        for d_row, d_col in directions:
+            # Loop runs up to max_steps (1 for King, 7 for others)
+            for i in range(1, max_steps + 1):
+                target_row = row + d_row * i
+                target_col = col + d_col * i
+
+                if 0 <= target_row < self.game_state.board.DIMENSION and 0 <= target_col < self.game_state.board.DIMENSION:
+                    target_piece = self.game_state.board.board[target_row][target_col]
+                    if target_piece == '--':
+                        possible_moves.append(((row, col), (target_row, target_col)))
+                    elif target_piece[0] == enemy_color:
+                        possible_moves.append(((row, col), (target_row, target_col)))
+                        break
+                    else:
+                        break
+                else:
+                    break
+
+
     def get_pawn_move(self, row, col, possible_moves):
         if self.game_state.white_to_move:
             if row == 0: return # pawn promotion later!
@@ -204,27 +226,28 @@ class Move:
 
 
     def get_rook_move(self, row, col, possible_moves):
-        pass
+        directions = [(-1, 0), (0, 1), (1, 0), (0, -1)]
+        max_steps = self.game_state.board.DIMENSION - 1
+        self.get_sliding_moves(row, col, directions, possible_moves, max_steps)
 
 
     def get_bishop_move(self, row, col, possible_moves):
-        pass
+        directions = [(-1, 1), (1, 1), (1, -1), (-1, -1)]
+        max_steps = self.game_state.board.DIMENSION - 1
+        self.get_sliding_moves(row, col, directions, possible_moves, max_steps)
+
+    
+    def get_queen_move(self, row, col, possible_moves):
+        directions = [(-1, 0), (0, 1), (1, 0), (0, -1), (-1, 1), (1, 1), (1, -1), (-1, -1)]
+        max_steps = self.game_state.board.DIMENSION - 1
+        self.get_sliding_moves(row, col, directions, possible_moves, max_steps)
+
+
+    def get_king_move(self, row, col, possible_moves):
+        directions = [(-1, 0), (0, 1), (1, 0), (0, -1), (-1, 1), (1, 1), (1, -1), (-1, -1)]
+        max_steps = 1
+        self.get_sliding_moves(row, col, directions, possible_moves, max_steps)
 
 
     def get_knight_move(self, row, col, possible_moves):
         pass
-
-
-    def get_king_move(self, row, col, possible_moves):
-        pass
-
-
-    def get_queen_move(self, row, col, possible_moves):
-        pass
-
-
-
-
-
-
-
