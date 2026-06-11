@@ -19,6 +19,9 @@ class GameState:
         self.target_square = None
         self.target_piece = None
 
+        self.black_king_location = (0, 4)
+        self.white_king_location = (7, 4)
+
 
 
     ####################################################################################
@@ -78,7 +81,7 @@ class GameState:
     
         is_first_click = len(self.player_clicked) == 0
         is_deselecting = (row, col) == self.selected_square
-        
+
         is_empty_first_click = is_first_click and piece == '--'
         is_enemy_piece = (self.white_to_move and piece[0] == 'b') or (not self.white_to_move and piece[0] == 'w')
         is_wrong_color_turn = is_first_click and is_enemy_piece

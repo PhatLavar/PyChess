@@ -33,7 +33,7 @@ class Move:
         moved_color = color_of(self.game_state.moved_piece)
         target_color = color_of(self.game_state.target_piece)
 
-        # rule: same color -> no harm, not working for 'castling' yet
+        # Rule: same color -> no harm, not working for 'castling' yet
         if target_color is not None and moved_color == target_color:
             self.game_state.player_clicked = []
             self.game_state.selected_square = ()
@@ -50,7 +50,13 @@ class Move:
         self.game_state.board.board[target_square[0]][target_square[1]] = self.game_state.moved_piece
         self.game_state.board.board[moved_square[0]][moved_square[1]] = '--'
 
-        # record the move and save undo metadata
+        # Update the king location if it is a king move
+        if self.game_state.moved_piece == 'wK':
+            self.game_state.white_king_location = target_square
+        elif self.game_state.moved_piece == 'bK':
+            self.game_state.black_king_location = target_square
+
+        # Record the move and save undo metadata
         self.record_move(self.game_state.moved_piece, moved_square, self.game_state.target_piece, target_square, move_type='MOVE')
         self.notation.append({
             'moved_piece': self.game_state.moved_piece,
@@ -122,6 +128,12 @@ class Move:
         self.game_state.board.board[moved_square[0]][moved_square[1]] = moved_piece
         self.game_state.board.board[target_square[0]][target_square[1]] = target_prev_piece
 
+        # Update the king location when redo a king move
+        if moved_piece == 'wK':
+            self.game_state.white_king_location = moved_square
+        elif moved_piece == 'bK':
+            self.game_state.black_king_location = moved_square
+
         if len(self.move_log) > 0:
             self.move_log.pop()
 
@@ -137,8 +149,29 @@ class Move:
     # ----------------------------- GET ALL VALID MOVES --------------------------------
     ####################################################################################
     def get_valid_moves(self):
+        possible_moves = self.get_all_possible_moves()
         valid_moves = [] # [((moved_row, moved_col), (target_row, target_col))]
-        return self.get_all_possible_moves() # we won't consider the check after moving! (yet)
+        
+        for move in possible_moves:
+            moved_square, target_square = move
+
+            # Set up the original piece
+            moved_piece = self.game_state.board.board[moved_square[0]][moved_square[1]]
+            target_piece = self.game_state.board.board[target_square[0]][target_square[1]]
+
+            # Suppose to do the move
+            self.game_state.board.board[target_square[0]][target_square[1]] = moved_piece
+            self.game_state.board.board[moved_square[0]][moved_square[1]] = '--'
+
+            # King in check ---> INVALID move
+            if not self.game_state.move_validator.in_check():
+                valid_moves.append(move)
+
+            # Reset, since this is just getting the valid moves, not do the move
+            self.game_state.board.board[moved_square[0]][moved_square[1]] = moved_piece
+            self.game_state.board.board[target_square[0]][target_square[1]] = target_piece
+
+        return valid_moves
 
 
     def get_all_possible_moves(self):
