@@ -1,6 +1,7 @@
 from chess_engine.board import Board
 from chess_engine.pieces import Piece
 from chess_engine.move import Move
+from chess_engine.move_validator import MoveValidator
 import pygame as pg
 
 class GameState:
@@ -8,6 +9,7 @@ class GameState:
         self.white_to_move = True
         self.board = Board()
         self.move = Move(self)
+        self.move_validator = MoveValidator(self)
 
         self.PIECE_IMAGES = {}
         self.selected_square = ()   # (row, col)
