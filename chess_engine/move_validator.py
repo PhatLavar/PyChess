@@ -23,10 +23,10 @@ class MoveValidator:
 
 
     def is_checkmate(self):
-        valid_move = self.game_state.get_valid_moves()
+        valid_move = self.game_state.move.get_valid_moves()
         return len(valid_move) == 0 and self.in_check()
 
 
     def is_stalemate(self):
-        valid_move = self.game_state.get_valid_moves()
+        valid_move = self.game_state.move.get_valid_moves()
         return len(valid_move) == 0 and not self.in_check()

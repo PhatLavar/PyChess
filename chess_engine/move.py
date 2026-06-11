@@ -66,10 +66,18 @@ class Move:
             'capture': capture,
         })
 
-        # reset
+        # Check if the opponent king is being check, checkmate or stalemate to logging the move
+        self.game_state.white_to_move = not self.game_state.white_to_move
+        if self.game_state.move_validator.is_stalemate():
+            self.record_move(self.game_state.moved_piece, moved_square, self.game_state.target_piece, target_square, move_type='STALEMATE')
+        elif self.game_state.move_validator.is_checkmate():
+            self.record_move(self.game_state.moved_piece, moved_square, self.game_state.target_piece, target_square, move_type='CHECKMATE')
+        elif self.game_state.move_validator.in_check():
+            self.record_move(self.game_state.moved_piece, moved_square, self.game_state.target_piece, target_square, move_type='CHECK')
+
+        # Reset square selection buffers
         self.game_state.selected_square = ()
         self.game_state.player_clicked = []
-        self.game_state.white_to_move = not self.game_state.white_to_move
 
 
 
@@ -89,7 +97,9 @@ class Move:
         Format, store and print a simple move notation.
         Example: 'wP e2->e4' or 'wP e2->e4 x bP' when capturing.
 
-        Accepted move_types: 'MOVE', 'CAPTURE', 'REDO', 'INVALID'
+        Accepted move_types: 
+            'MOVE', 'CAPTURE', 'REDO', 'INVALID',
+            'CHECK', 'CHECKMATE', 'STALEMATE'
         """
         if move_type == 'MOVE' and target_piece != '--':
             move_type = 'CAPTURE'
@@ -106,7 +116,7 @@ class Move:
 
         # Combine flag and details
         move_log = f"[{move_type}] {move_details}"
-        
+
         self.move_log.append(move_log)
         print(move_log)
 
@@ -163,7 +173,7 @@ class Move:
             self.game_state.board.board[target_square[0]][target_square[1]] = moved_piece
             self.game_state.board.board[moved_square[0]][moved_square[1]] = '--'
 
-            # King in check ---> INVALID move
+            # King not in check ---> VALID move
             if not self.game_state.move_validator.in_check():
                 valid_moves.append(move)
 
