@@ -17,7 +17,7 @@ class Move:
     ####################################################################################
     # ------------------------------- HANDLE PIECE MOVE --------------------------------
     ####################################################################################
-    def handle_selected_piece_move(self, moved_square, target_square):
+    def handle_piece_move(self, moved_square, target_square):
         if self.game_state.moved_piece == '--':
             self.game_state.selected_square = ()
             self.game_state.player_clicked = []

@@ -85,9 +85,4 @@ class GameState:
                 self.target_square = self.player_clicked[1]
                 self.moved_piece = self.board.board[self.moved_square[0]][self.moved_square[1]]
                 self.target_piece = self.board.board[self.target_square[0]][self.target_square[1]]
-                self.move.handle_selected_piece_move(self.moved_square, self.target_square)
-
-
-    
-
-
+                self.move.handle_piece_move(self.moved_square, self.target_square)
