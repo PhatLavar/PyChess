@@ -73,8 +73,12 @@ class GameState:
     def handle_mouse_click(self, mouse_location):
         col = mouse_location[0] // self.board.SQUARE_SIZE
         row = mouse_location[1] // self.board.SQUARE_SIZE
+        piece = self.board.board[row][col]
         
         if (row, col) == self.selected_square or (self.board.board[row][col] == '--' and len(self.player_clicked) == 0):
+            self.selected_square = ()
+            self.player_clicked = []
+        elif (self.white_to_move and piece[0] == 'b') or (not self.white_to_move and piece[0] == 'w'):
             self.selected_square = ()
             self.player_clicked = []
         else:
