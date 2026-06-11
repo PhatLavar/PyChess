@@ -1,5 +1,4 @@
-from chess_engine.board import Board
-from chess_engine.pieces import Piece
+from chess_engine.chess_properties import Board, Piece
 from chess_engine.move import Move
 from chess_engine.move_validator import MoveValidator
 import pygame as pg

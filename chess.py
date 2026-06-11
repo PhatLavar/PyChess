@@ -1,6 +1,5 @@
-from chess_engine.board import Board
+from chess_engine.chess_properties import Board, Animation
 from chess_engine.game_state import GameState
-from chess_engine.animation import Animation
 from chess_engine.move import Move
 import pygame as pg
 
