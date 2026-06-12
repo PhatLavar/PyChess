@@ -17,58 +17,65 @@ class Move:
     ####################################################################################
     # ------------------------------- HANDLE PIECE MOVE --------------------------------
     ####################################################################################
+    def _color_of_pieces(self, moved_piece, target_piece):
+        moved_piece_color = None if moved_piece == '--' else moved_piece[0]
+        target_piece_color = None if target_piece == '--' else target_piece[0]
+        return (moved_piece_color, target_piece_color)
+    
+
+    def _reset_click_state(self):
+        self.game_state.selected_square = ()
+        self.game_state.player_clicked = []
+
+    
     def handle_piece_move(self, moved_square, target_square):
-        if self.game_state.moved_piece == '--':
-            self.game_state.selected_square = ()
-            self.game_state.player_clicked = []
+        # Initially setup the variable
+        moved_piece = self.game_state.moved_piece
+        target_piece = self.game_state.target_piece
+
+        if moved_piece == '--':
+            self._reset_click_state()
             return
         
         valid_moves = self.get_valid_moves()
         current_move = (moved_square, target_square)
-
-        def color_of(piece):
-            # 'w' or 'b'
-            return None if piece == '--' else piece[0]
-
-        moved_color = color_of(self.game_state.moved_piece)
-        target_color = color_of(self.game_state.target_piece)
+        moved_piece_color, target_piece_color = self._color_of_pieces(moved_piece, target_piece)
 
         # Rule: same color -> no harm, not working for 'castling' yet
-        if target_color is not None and moved_color == target_color:
-            self.game_state.player_clicked = []
-            self.game_state.selected_square = ()
+        if target_piece_color is not None and moved_piece_color == target_piece_color:
+            self._reset_click_state()
             self.game_state.player_clicked.append(target_square)
             return
         
+        # Rule: if the move is INVALID, no making it and reset the clicking state buffer
         if current_move not in valid_moves:
-            self.record_move(self.game_state.moved_piece, moved_square, self.game_state.target_piece, target_square, move_type='INVALID')
-            self.game_state.selected_square = ()
-            self.game_state.player_clicked = []
+            self.record_move(moved_piece, moved_square, target_piece, target_square, move_type='INVALID')
+            self._reset_click_state()
             return
 
-        capture = self.game_state.target_piece != '--'
+        # Stimulate the move
+        is_capture = self.game_state.target_piece != '--'
         self.game_state.board.board[target_square[0]][target_square[1]] = self.game_state.moved_piece
         self.game_state.board.board[moved_square[0]][moved_square[1]] = '--'
 
         # Update the king location if it is a king move
-        if self.game_state.moved_piece == 'wK':
-            self.game_state.white_king_location = target_square
-        elif self.game_state.moved_piece == 'bK':
-            self.game_state.black_king_location = target_square
+        if moved_piece == 'wK':
+            self.game_state.white_king_position = target_square
+        elif moved_piece == 'bK':
+            self.game_state.black_king_position = target_square
 
         # Record the move and save undo metadata
-        self.record_move(self.game_state.moved_piece, moved_square, self.game_state.target_piece, target_square, move_type='MOVE')
+        self.record_move(moved_piece, moved_square, target_piece, target_square, move_type='MOVE')
         self.notation.append({
-            'moved_piece': self.game_state.moved_piece,
+            'moved_piece': moved_piece,
             'moved_square': moved_square,
-            'target_piece': self.game_state.target_piece,
+            'target_piece': target_piece,
             'target_square': target_square,
-            'capture': capture,
+            'capture': is_capture,
         })
 
-        # reset
-        self.game_state.selected_square = ()
-        self.game_state.player_clicked = []
+        # Reset
+        self._reset_click_state()
         self.game_state.white_to_move = not self.game_state.white_to_move
 
 
@@ -76,7 +83,7 @@ class Move:
     ####################################################################################
     # -------------------------------- RECORD MOVE LOG ---------------------------------
     ####################################################################################
-    def square_to_notation(self, square):
+    def _square_to_notation(self, square):
             files = 'abcdefgh'
             row, col = square
             file = files[col]
@@ -94,8 +101,8 @@ class Move:
         if move_type == 'MOVE' and target_piece != '--':
             move_type = 'CAPTURE'
 
-        from_notation = self.square_to_notation(moved_square)
-        to_notation = self.square_to_notation(target_square)
+        from_notation = self._square_to_notation(moved_square)
+        to_notation = self._square_to_notation(target_square)
 
         move_details = f"{moved_piece} {from_notation}->{to_notation}"
         if move_type == 'CAPTURE':
@@ -139,8 +146,7 @@ class Move:
 
         self.record_move(moved_piece, target_square, target_prev_piece, moved_square, move_type='REDO')
 
-        self.game_state.selected_square = ()
-        self.game_state.player_clicked = []
+        self._reset_click_state()
         self.game_state.white_to_move = not self.game_state.white_to_move
 
 
@@ -164,7 +170,7 @@ class Move:
             self.game_state.board.board[moved_square[0]][moved_square[1]] = '--'
 
             # King in check ---> INVALID move
-            if not self.game_state.move_validator.in_check():
+            if not self.game_state.move_validator._in_check():
                 valid_moves.append(move)
 
             # Reset, since this is just getting the valid moves, not do the move

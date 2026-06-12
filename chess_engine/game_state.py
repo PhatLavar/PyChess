@@ -19,8 +19,8 @@ class GameState:
         self.target_square = None
         self.target_piece = None
 
-        self.black_king_location = (0, 4)
-        self.white_king_location = (7, 4)
+        self.black_king_position = (0, 4)
+        self.white_king_position = (7, 4)
 
 
 
