@@ -1,26 +1,40 @@
+from chess_engine.helper import (
+    DIAGONAL,
+    EMP,
+    KING_MOVES,
+    KNIGHT_MOVES,
+    ORTHOGONAL,
+    enemy_color,
+    in_bounds,
+    piece_color,
+    piece_type,
+    turn_color,
+)
+
+
 class MoveValidator:
     def __init__(self, game_state):
         self.game_state = game_state
 
+    @property
+    def board(self):
+        return self.game_state.board
 
     def _find_king(self, color=None):
-        if color is None:
-            color = 'w' if self.game_state.white_to_move else 'b'
-
+        if color is None: color = turn_color(self.game_state.white_to_move)
         return self.game_state.white_king_position if color == 'w' else self.game_state.black_king_position
 
-
     def _get_enemy_color(self, color=None):
-        if color is None:
-            color = 'w' if self.game_state.white_to_move else 'b'
-
-        return 'b' if color == 'w' else 'w'
-
+        if color is None: color = turn_color(self.game_state.white_to_move)
+        return enemy_color(color)
 
     def _in_bounds(self, row, col):
-        return 0 <= row < self.game_state.board.DIMENSION and 0 <= col < self.game_state.board.DIMENSION
+        return in_bounds(row, col, self.board.DIMENSION)
 
 
+    ####################################################################################
+    # ------------- CHECK IF A SQUARE IS UNDER ATTACK BY OPPONENT PIECES ---------------
+    ####################################################################################
     def _square_under_attack(self, square, enemy_color):
         row, col = square
 
@@ -29,38 +43,25 @@ class MoveValidator:
             attack_row = row + pawn_direction
             attack_col = col + d_col
             if self._in_bounds(attack_row, attack_col):
-                piece = self.game_state.board.board[attack_row][attack_col]
+                piece = self.board.get_piece((attack_row, attack_col))
                 if piece == enemy_color + 'P':
                     return True
 
-        knight_directions = [(-2, -1), (-2, 1), (-1, -2), (-1, 2), (1, -2), (1, 2), (2, -1), (2, 1)]
-        for d_row, d_col in knight_directions:
-            attack_row = row + d_row
-            attack_col = col + d_col
-            if self._in_bounds(attack_row, attack_col):
-                piece = self.game_state.board.board[attack_row][attack_col]
-                if piece == enemy_color + 'N':
-                    return True
-
-        king_directions = [(-1, 0), (0, 1), (1, 0), (0, -1), (-1, 1), (1, 1), (1, -1), (-1, -1)]
-        for d_row, d_col in king_directions:
-            attack_row = row + d_row
-            attack_col = col + d_col
-            if self._in_bounds(attack_row, attack_col):
-                piece = self.game_state.board.board[attack_row][attack_col]
-                if piece == enemy_color + 'K':
-                    return True
-
-        straight_directions = [(-1, 0), (0, 1), (1, 0), (0, -1)]
-        if self._attacked_by_sliding_piece(row, col, enemy_color, straight_directions, ('R', 'Q')):
-            return True
-
-        diagonal_directions = [(-1, 1), (1, 1), (1, -1), (-1, -1)]
-        if self._attacked_by_sliding_piece(row, col, enemy_color, diagonal_directions, ('B', 'Q')):
-            return True
-
+        if self._attacked_by_step_piece(row, col, enemy_color, KNIGHT_MOVES, 'N'): return True
+        if self._attacked_by_step_piece(row, col, enemy_color, KING_MOVES, 'K'): return True
+        if self._attacked_by_sliding_piece(row, col, enemy_color, ORTHOGONAL, ('R', 'Q')): return True
+        if self._attacked_by_sliding_piece(row, col, enemy_color, DIAGONAL, ('B', 'Q')): return True
         return False
 
+    def _attacked_by_step_piece(self, row, col, enemy, directions, attacker_type):
+        for d_row, d_col in directions:
+            attack_row = row + d_row
+            attack_col = col + d_col
+            if self._in_bounds(attack_row, attack_col):
+                piece = self.board.get_piece((attack_row, attack_col))
+                if piece == enemy + attacker_type:
+                    return True
+        return False
 
     def _attacked_by_sliding_piece(self, row, col, enemy_color, directions, valid_piece_types):
         for d_row, d_col in directions:
@@ -68,40 +69,43 @@ class MoveValidator:
             attack_col = col + d_col
 
             while self._in_bounds(attack_row, attack_col):
-                piece = self.game_state.board.board[attack_row][attack_col]
-
-                if piece == '--':
+                piece = self.board.get_piece((attack_row, attack_col))
+                if piece == EMP:
                     attack_row += d_row
                     attack_col += d_col
                     continue
-
-                if piece[0] == enemy_color and piece[1] in valid_piece_types:
+                if piece_color(piece) == enemy_color and piece_type(piece) in valid_piece_types:
                     return True
-
                 break
 
         return False
 
 
+    ####################################################################################
+    # ------------------- CHECK IF A PIECE IS PINNED (CANNOT MOVE) ---------------------
+    ####################################################################################
     def _is_pinned(self, square, color=None):
         if color is None:
-            color = 'w' if self.game_state.white_to_move else 'b'
+            color = turn_color(self.game_state.white_to_move)
 
         row, col = square
-        piece = self.game_state.board.board[row][col]
-        if piece == '--' or piece[0] != color or piece[1] == 'K':
+        piece = self.board.get_piece(square)
+        if piece == EMP or piece_color(piece) != color or piece_type(piece) == 'K':
             return False
 
-        self.game_state.board.board[row][col] = '--'
+        self.board.set_piece(square, EMP)
         is_pinned = self._in_check(color)
-        self.game_state.board.board[row][col] = piece
+        self.board.set_piece(square, piece)
 
         return is_pinned
 
 
+    ####################################################################################
+    # --------------- CHECK IF KING IS CHECKED AFTER STIMULATE THE MOVE ----------------
+    ####################################################################################
     def _in_check(self, color=None):
         if color is None:
-            color = 'w' if self.game_state.white_to_move else 'b'
+            color = turn_color(self.game_state.white_to_move)
 
         king_position = self._find_king(color)
         enemy_color = self._get_enemy_color(color)
@@ -110,7 +114,6 @@ class MoveValidator:
 
     def in_check(self, color=None):
         return self._in_check(color)
-
 
 
     ####################################################################################

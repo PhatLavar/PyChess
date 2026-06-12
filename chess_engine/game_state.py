@@ -1,4 +1,5 @@
 from chess_engine.chess_properties import Board, Piece
+from chess_engine.helper import EMP, piece_color, turn_color
 from chess_engine.move import Move
 from chess_engine.move_validator import MoveValidator
 import pygame as pg
@@ -23,7 +24,6 @@ class GameState:
         self.white_king_position = (7, 4)
 
 
-
     ####################################################################################
     # ----------------------------- DRAW BOARD AND PIECES ------------------------------
     ####################################################################################
@@ -34,67 +34,50 @@ class GameState:
                 (self.board.SQUARE_SIZE, self.board.SQUARE_SIZE)
             )
 
-
     def draw_game_state(self, screen):
-        def draw_board(screen):
-            colors = [pg.Color('white'), pg.Color('gray')]
-            for row in range(self.board.DIMENSION):
-                for col in range(self.board.DIMENSION):
-                    pg.draw.rect(
-                        screen, 
-                        colors[(row + col) % 2], 
-                        pg.Rect(
-                            col * self.board.SQUARE_SIZE, 
-                            row * self.board.SQUARE_SIZE, 
-                            self.board.SQUARE_SIZE, 
-                            self.board.SQUARE_SIZE
-                        )
-                    )
-
-        def draw_pieces(screen, board):
-            for row in range(self.board.DIMENSION):
-                for col in range(self.board.DIMENSION):
-                    piece = board[row][col]
-                    if piece != '--':
-                        screen.blit(
-                            self.PIECE_IMAGES[piece], 
-                            pg.Rect(
-                                col * self.board.SQUARE_SIZE, 
-                                row * self.board.SQUARE_SIZE, 
-                                self.board.SQUARE_SIZE, 
-                                self.board.SQUARE_SIZE 
-                            )
-                        )
-
-        draw_board(screen)
-        draw_pieces(screen, self.board.board)
-
+        self.board.draw(screen, self.PIECE_IMAGES)
 
 
     ####################################################################################
     # --------------------------- HANDLE CLICK INTERACTION -----------------------------
     ####################################################################################
     def handle_mouse_click(self, mouse_location):
+        square = self._get_square(mouse_location)
+        piece = self.board.get_piece(square)
+
+        if self._should_reset_selection(square, piece):
+            self._reset_selection()
+            return
+
+        self._select_square(square)
+        if len(self.player_clicked) == 2:
+            self._execute_selected_move()
+
+
+    ####################################################################################
+    # ----------------------------- HANDLE CLICK HELPERS -------------------------------
+    ####################################################################################
+    def _get_square(self, mouse_location):
         col = mouse_location[0] // self.board.SQUARE_SIZE
         row = mouse_location[1] // self.board.SQUARE_SIZE
-        piece = self.board.board[row][col]
-    
-        is_first_click = len(self.player_clicked) == 0
-        is_deselecting = (row, col) == self.selected_square
+        return (row, col)
 
-        is_empty_first_click = is_first_click and piece == '--'
-        is_enemy_piece = (self.white_to_move and piece[0] == 'b') or (not self.white_to_move and piece[0] == 'w')
-        is_wrong_color_turn = is_first_click and is_enemy_piece
+    def _should_reset_selection(self, square, piece):
+        if square == self.selected_square: return True
+        if len(self.player_clicked) != 0: return False
+        return piece == EMP or piece_color(piece) != turn_color(self.white_to_move)
 
-        if is_deselecting or is_empty_first_click or is_wrong_color_turn:
-            self.selected_square = ()
-            self.player_clicked = []
-        else:
-            self.selected_square = (row, col)
-            self.player_clicked.append((row, col))
-            if len(self.player_clicked) == 2:
-                self.moved_square = self.player_clicked[0]
-                self.target_square = self.player_clicked[1]
-                self.moved_piece = self.board.board[self.moved_square[0]][self.moved_square[1]]
-                self.target_piece = self.board.board[self.target_square[0]][self.target_square[1]]
-                self.move.handle_piece_move(self.moved_square, self.target_square)
+    def _reset_selection(self):
+        self.selected_square = ()
+        self.player_clicked = []
+
+    def _select_square(self, square):
+        self.selected_square = square
+        self.player_clicked.append(square)
+
+    def _execute_selected_move(self):
+        self.moved_square = self.player_clicked[0]
+        self.target_square = self.player_clicked[1]
+        self.moved_piece = self.board.get_piece(self.moved_square)
+        self.target_piece = self.board.get_piece(self.target_square)
+        self.move.handle_piece_move(self.moved_square, self.target_square)
