@@ -74,9 +74,16 @@ class Move:
             'capture': is_capture,
         })
 
+        self.game_state.white_to_move = not self.game_state.white_to_move
+        if self.game_state.move_validator.is_checkmate():
+            self.record_move(moved_piece, moved_square, target_piece, target_square, move_type='CHECKMATE')
+        elif self.game_state.move_validator.is_stalemate():
+            self.record_move(moved_piece, moved_square, target_piece, target_square, move_type='STALEMATE')
+        elif self.game_state.move_validator._in_check():
+            self.record_move(moved_piece, moved_square, target_piece, target_square, move_type='CHECK')
+
         # Reset
         self._reset_click_state()
-        self.game_state.white_to_move = not self.game_state.white_to_move
 
 
 
@@ -96,7 +103,9 @@ class Move:
         Format, store and print a simple move notation.
         Example: 'wP e2->e4' or 'wP e2->e4 x bP' when capturing.
 
-        Accepted move_types: 'MOVE', 'CAPTURE', 'REDO', 'INVALID'
+        Accepted move_types: 
+            'MOVE', 'CAPTURE', 'REDO', 'INVALID',
+            'CHECK', 'CHECKMATE', 'STALEMATE'
         """
         if move_type == 'MOVE' and target_piece != '--':
             move_type = 'CAPTURE'
@@ -137,9 +146,9 @@ class Move:
 
         # Update the king location when redo a king move
         if moved_piece == 'wK':
-            self.game_state.white_king_location = moved_square
+            self.game_state.white_king_position = moved_square
         elif moved_piece == 'bK':
-            self.game_state.black_king_location = moved_square
+            self.game_state.black_king_position = moved_square
 
         if len(self.move_log) > 0:
             self.move_log.pop()
@@ -165,9 +174,17 @@ class Move:
             moved_piece = self.game_state.board.board[moved_square[0]][moved_square[1]]
             target_piece = self.game_state.board.board[target_square[0]][target_square[1]]
 
+            current_white_king = self.game_state.white_king_position
+            current_black_king = self.game_state.black_king_position
+
             # Suppose to do the move
             self.game_state.board.board[target_square[0]][target_square[1]] = moved_piece
             self.game_state.board.board[moved_square[0]][moved_square[1]] = '--'
+
+            if moved_piece == 'wK':
+                self.game_state.white_king_position = target_square
+            elif moved_piece == 'bK':
+                self.game_state.black_king_position = target_square
 
             # King in check ---> INVALID move
             if not self.game_state.move_validator._in_check():
@@ -176,6 +193,8 @@ class Move:
             # Reset, since this is just getting the valid moves, not do the move
             self.game_state.board.board[moved_square[0]][moved_square[1]] = moved_piece
             self.game_state.board.board[target_square[0]][target_square[1]] = target_piece
+            self.game_state.white_king_position = current_white_king
+            self.game_state.black_king_position = current_black_king
 
         return valid_moves
 
@@ -202,7 +221,7 @@ class Move:
         enemy_color = 'b' if self.game_state.white_to_move else 'w'
 
         for d_row, d_col in directions:
-            # Loop runs up to max_steps (1 for King, 7 for others)
+            # Loop runs up to max_steps (1 for King and Knight, 7 for others)
             for i in range(1, max_steps + 1):
                 target_row = row + d_row * i
                 target_col = col + d_col * i
@@ -212,7 +231,8 @@ class Move:
                     if target_piece == '--':
                         possible_moves.append(((row, col), (target_row, target_col)))
                     elif target_piece[0] == enemy_color:
-                        possible_moves.append(((row, col), (target_row, target_col)))
+                        if target_piece[1] != 'K':
+                            possible_moves.append(((row, col), (target_row, target_col)))
                         break
                     else:
                         break
@@ -233,13 +253,13 @@ class Move:
             # Captures to the left diagonal
             if col - 1 >= 0:
                 target_piece = self.game_state.board.board[row - 1][col - 1]
-                if target_piece != '--' and target_piece[0] == 'b':
+                if target_piece != '--' and target_piece[0] == 'b' and target_piece[1] != 'K':
                     possible_moves.append( ((row, col), (row - 1, col - 1)) )
 
             # Captures to the right diagonal
             if col + 1 < self.game_state.board.DIMENSION:
                 target_piece = self.game_state.board.board[row - 1][col + 1]
-                if target_piece != '--' and target_piece[0] == 'b':
+                if target_piece != '--' and target_piece[0] == 'b' and target_piece[1] != 'K':
                     possible_moves.append( ((row, col), (row - 1, col + 1)) )
 
         else:
@@ -254,13 +274,13 @@ class Move:
             # Captures to the left diagonal
             if col - 1 >= 0:
                 target_piece = self.game_state.board.board[row + 1][col - 1]
-                if target_piece != '--' and target_piece[0] == 'w':
+                if target_piece != '--' and target_piece[0] == 'w' and target_piece[1] != 'K':
                     possible_moves.append( ((row, col), (row + 1, col - 1)) )
 
             # Captures to the right diagonal
             if col + 1 < self.game_state.board.DIMENSION:
                 target_piece = self.game_state.board.board[row + 1][col + 1]
-                if target_piece != '--' and target_piece[0] == 'w':
+                if target_piece != '--' and target_piece[0] == 'w' and target_piece[1] != 'K':
                     possible_moves.append( ((row, col), (row + 1, col + 1)) )
 
 
