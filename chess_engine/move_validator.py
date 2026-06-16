@@ -9,6 +9,7 @@ from chess_engine.helper import (
     piece_color,
     piece_type,
     turn_color,
+    get_promotion_row
 )
 
 
@@ -127,3 +128,10 @@ class MoveValidator:
     def is_stalemate(self):
         valid_move = self.game_state.move.get_valid_moves()
         return len(valid_move) == 0 and not self._in_check()
+    
+
+    ####################################################################################
+    # ------------------ CHECK IF PAWN CAN BE PROMOTED AFTER THE MOVE ------------------
+    ####################################################################################
+    def can_pawn_promotion(self, target_square):
+        return get_promotion_row(self.game_state.white_to_move) == target_square[0]

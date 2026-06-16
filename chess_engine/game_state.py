@@ -23,6 +23,13 @@ class GameState:
         self.black_king_position = (0, 4)
         self.white_king_position = (7, 4)
 
+        self.promotion_pending = False
+        self.promotion_square = None        # where the pawn landed
+        self.promotion_moved_square = None  # original pawn square
+        self.promotion_moved_piece = None
+        self.promotion_target_piece = None
+        self.promotion_color = None
+
 
     ####################################################################################
     # ----------------------------- DRAW BOARD AND PIECES ------------------------------
@@ -36,12 +43,35 @@ class GameState:
 
     def draw_game_state(self, screen):
         self.board.draw(screen, self.PIECE_IMAGES)
+        if self.promotion_pending:
+            self.draw_promotion_overlay(screen)
+
+
+    ####################################################################################
+    # ------------------------ DRAW PROMOTION PENDING OVERLAY --------------------------
+    ####################################################################################
+    def draw_promotion_overlay(self, screen):
+        overlay = pg.Surface((Board.SCREEN_SIZE, Board.SCREEN_SIZE))
+        overlay.set_alpha(180)
+        overlay.fill(pg.Color('lightgray'))
+        screen.blit(overlay, (0, 0))
+
+        for piece_type, rect in self._promotion_choice_rects():
+            piece = self.promotion_color + piece_type
+            pg.draw.rect(screen, pg.Color('white'), rect)
+            pg.draw.rect(screen, pg.Color('black'), rect, 2)
+            if piece in self.PIECE_IMAGES:
+                screen.blit(self.PIECE_IMAGES[piece], rect)
 
 
     ####################################################################################
     # --------------------------- HANDLE CLICK INTERACTION -----------------------------
     ####################################################################################
     def handle_mouse_click(self, mouse_location):
+        if self.promotion_pending:
+            self._handle_promotion_click(mouse_location)
+            return
+        
         square = self._get_square(mouse_location)
         piece = self.board.get_piece(square)
 
@@ -52,6 +82,34 @@ class GameState:
         self._select_square(square)
         if len(self.player_clicked) == 2:
             self._execute_selected_move()
+
+
+    ####################################################################################
+    # --------------------------- HANDLE PROMOTION HELPERS -----------------------------
+    ####################################################################################
+    def _handle_promotion_click(self, mouse_location):
+        for chosen_type, rect in self._promotion_choice_rects():
+            if rect.collidepoint(mouse_location):
+                self.move.executor.handle_pawn_promotion(chosen_type)
+                return
+    
+    def _promotion_choice_rects(self):
+        pieces = ['Q', 'R', 'B', 'N']
+        start_x = Board.SCREEN_SIZE // 2 - (2 * Board.SQUARE_SIZE)
+        y = Board.SCREEN_SIZE // 2 - Board.SQUARE_SIZE // 2
+
+        return [
+            (
+                piece_type,
+                pg.Rect(
+                    start_x + index * Board.SQUARE_SIZE,
+                    y,
+                    Board.SQUARE_SIZE,
+                    Board.SQUARE_SIZE
+                )
+            )
+            for index, piece_type in enumerate(pieces)
+        ]
 
 
     ####################################################################################

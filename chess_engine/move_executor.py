@@ -17,6 +17,7 @@ class MoveExecutor:
     def handle_piece_move(self, moved_square, target_square):
         moved_piece = self.game_state.moved_piece
         target_piece = self.game_state.target_piece
+        can_promote_pawn = self.game_state.move_validator.can_pawn_promotion(target_square)
 
         if moved_piece == EMP:
             self._reset_click_state()
@@ -31,6 +32,10 @@ class MoveExecutor:
             self.move_logger.record_move(moved_piece, moved_square, target_piece, target_square, move_type='INVALID')
             self._reset_click_state()
             return
+        
+        if moved_piece[1] == 'P' and can_promote_pawn:
+            self.handle_promotion_state(moved_piece, moved_square, target_piece, target_square)
+            return
 
         self._make_move(moved_piece, moved_square, target_square)
         self._record_successful_move(moved_piece, moved_square, target_piece, target_square)
@@ -42,6 +47,11 @@ class MoveExecutor:
     # ------------------------------- HANDLE UNDO MOVE ---------------------------------
     ####################################################################################
     def handle_undo_move(self):
+        if self.game_state.promotion_pending:
+            self._clear_promotion_state()
+            self._reset_click_state()
+            return
+
         if len(self.move_logger.notation) == 0:
             return
 
@@ -100,3 +110,52 @@ class MoveExecutor:
     def _reset_click_state(self):
         self.game_state.selected_square = ()
         self.game_state.player_clicked = []
+
+
+    ####################################################################################
+    # ---------------------------- HANDLE PAWN PROMOTION -------------------------------
+    ####################################################################################
+    def handle_pawn_promotion(self, chosen_type):
+        moved_piece = self.game_state.promotion_moved_piece
+        moved_square = self.game_state.promotion_moved_square
+        target_piece = self.game_state.promotion_target_piece
+        target_square = self.game_state.promotion_square
+        promoted_piece = self.game_state.promotion_color + chosen_type
+        is_capture = target_piece != EMP
+
+        self.board.set_piece(target_square, promoted_piece)
+        self.board.set_piece(moved_square, EMP)
+        self.move_logger.record_move(
+            moved_piece,
+            moved_square,
+            promoted_piece,
+            target_square,
+            move_type='PROMOTION'
+        )
+        self.move_logger.save_move(
+            moved_piece,
+            moved_square,
+            target_piece,
+            target_square,
+            is_capture,
+            promotion_piece=promoted_piece
+        )
+        self._clear_promotion_state()
+        self._record_game_status(promoted_piece, moved_square, target_piece, target_square)
+        self._reset_click_state()
+    
+    def handle_promotion_state(self, moved_piece, moved_square, target_piece, target_square):
+        self.game_state.promotion_pending = True
+        self.game_state.promotion_square = target_square
+        self.game_state.promotion_moved_square = moved_square
+        self.game_state.promotion_moved_piece = moved_piece
+        self.game_state.promotion_target_piece = target_piece
+        self.game_state.promotion_color = piece_color(moved_piece)
+
+    def _clear_promotion_state(self):
+        self.game_state.promotion_pending = False
+        self.game_state.promotion_square = None
+        self.game_state.promotion_moved_square = None
+        self.game_state.promotion_moved_piece = None
+        self.game_state.promotion_target_piece = None
+        self.game_state.promotion_color = None

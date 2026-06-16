@@ -27,6 +27,8 @@ class MoveLogger:
             move_details += f" x {target_piece}"
         elif move_type == 'REDO' and target_piece != '--':
             move_details += f"; {target_piece} {from_notation}"
+        elif move_type == 'PROMOTION':
+            move_details += f"; {target_piece} {to_notation}"
 
         move_log = f"[{move_type}] {move_details}"
         self.move_log.append(move_log)
@@ -36,11 +38,12 @@ class MoveLogger:
     ####################################################################################
     # ------------------------------ SAVE MOVE NOTATION --------------------------------
     ####################################################################################
-    def save_move(self, moved_piece, moved_square, target_piece, target_square, is_capture):
+    def save_move(self, moved_piece, moved_square, target_piece, target_square, is_capture, promotion_piece=None):
         self.notation.append({
             'moved_piece': moved_piece,
             'moved_square': moved_square,
             'target_piece': target_piece,
             'target_square': target_square,
             'capture': is_capture,
+            'promotion_piece': promotion_piece
         })
