@@ -95,14 +95,16 @@ class GameState:
     
     def _promotion_choice_rects(self):
         pieces = ['Q', 'R', 'B', 'N']
-        start_x = Board.SCREEN_SIZE // 2 - (2 * Board.SQUARE_SIZE)
+        gap = Board.SQUARE_SIZE // 3
+        total_width = len(pieces) * Board.SQUARE_SIZE + (len(pieces) - 1) * gap
+        start_x = Board.SCREEN_SIZE // 2 - total_width // 2
         y = Board.SCREEN_SIZE // 2 - Board.SQUARE_SIZE // 2
 
         return [
             (
                 piece_type,
                 pg.Rect(
-                    start_x + index * Board.SQUARE_SIZE,
+                    start_x + index * (Board.SQUARE_SIZE + gap),
                     y,
                     Board.SQUARE_SIZE,
                     Board.SQUARE_SIZE
