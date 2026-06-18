@@ -135,3 +135,16 @@ class MoveValidator:
     ####################################################################################
     def can_pawn_promotion(self, target_square):
         return get_promotion_row(self.game_state.white_to_move) == target_square[0]
+
+
+    ####################################################################################
+    # -------------------- CHECK IF PAWN MOVE IS AN EN PASSANT MOVE --------------------
+    ####################################################################################
+    def is_en_passant_move(self, moved_piece, moved_square, target_square):
+        return (
+            moved_piece[1] == 'P'
+            and target_square == self.game_state.en_passant_target
+            and self.board.get_piece(target_square) == EMP
+            and moved_square[1] != target_square[1]
+            and self.game_state.last_double_pawn_move is not None
+        )

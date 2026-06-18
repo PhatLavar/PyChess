@@ -30,6 +30,9 @@ class GameState:
         self.promotion_target_piece = None
         self.promotion_color = None
 
+        self.en_passant_target = None       # (row, col)
+        self.last_double_pawn_move = None   # {'pawn', 'from_square', 'to_square'}
+
 
     ####################################################################################
     # ----------------------------- DRAW BOARD AND PIECES ------------------------------
