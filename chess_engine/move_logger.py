@@ -27,7 +27,7 @@ class MoveLogger:
             move_details += f" x {target_piece}"
         elif move_type == 'EN_PASSANT':
             move_details += f" x {target_piece}"
-        elif move_type == 'REDO' and target_piece != '--':
+        elif move_type == 'UNDO' and target_piece != '--':
             move_details += f"; {target_piece} {from_notation}"
         elif move_type == 'PROMOTION':
             move_details += f"; {target_piece} {to_notation}"
@@ -41,7 +41,7 @@ class MoveLogger:
         to_notation = self.square_to_notation(target_square)
         capture_notation = self.square_to_notation(captured_square)
 
-        move_log = f"[REDO] {moved_piece} {from_notation}->{to_notation}; {captured_piece} {capture_notation}"
+        move_log = f"[UNDO] {moved_piece} {from_notation}->{to_notation}; {captured_piece} {capture_notation}"
         self.move_log.append(move_log)
         print(move_log)
 

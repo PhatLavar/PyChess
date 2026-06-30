@@ -90,7 +90,7 @@ class MoveExecutor:
                 last_move['en_passant_capture_square']
             )
         else:
-            self.move_logger.record_move(moved_piece, target_square, target_prev_piece, moved_square, move_type='REDO')
+            self.move_logger.record_move(moved_piece, target_square, target_prev_piece, moved_square, move_type='UNDO')
         self._reset_click_state()
         self.game_state.white_to_move = not self.game_state.white_to_move
 
