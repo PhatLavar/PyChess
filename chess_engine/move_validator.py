@@ -159,11 +159,12 @@ class MoveValidator:
     ####################################################################################
     def is_castling_move(self, moved_piece, moved_square, target_square):
         return (
-            moved_piece[1] == 'K'
+            moved_piece != EMP
+            and moved_piece[1] == 'K'
             and abs(target_square[1] - moved_square[1]) == 2
         )
     
-    
+
     ####################################################################################
     # ---------------------------- CHECK IF KING CAN CASTLE ----------------------------
     ####################################################################################
