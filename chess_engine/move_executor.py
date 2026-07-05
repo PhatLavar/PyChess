@@ -200,6 +200,13 @@ class MoveExecutor:
     # ---------------------------- HANDLE PAWN PROMOTION -------------------------------
     ####################################################################################
     def handle_pawn_promotion(self, chosen_type):
+        moved_piece = self.game_state.promotion_moved_piece
+        moved_square = self.game_state.promotion_moved_square
+        target_piece = self.game_state.promotion_target_piece
+        target_square = self.game_state.promotion_square
+        promoted_piece = self.game_state.promotion_color + chosen_type
+        is_capture = target_piece != EMP
+
         self._save_castling_rights_state()
         self._remove_castling_rights_after_move(
             moved_piece,
@@ -207,13 +214,6 @@ class MoveExecutor:
             target_piece,
             target_square
         )
-
-        moved_piece = self.game_state.promotion_moved_piece
-        moved_square = self.game_state.promotion_moved_square
-        target_piece = self.game_state.promotion_target_piece
-        target_square = self.game_state.promotion_square
-        promoted_piece = self.game_state.promotion_color + chosen_type
-        is_capture = target_piece != EMP
 
         self.board.set_piece(target_square, promoted_piece)
         self.board.set_piece(moved_square, EMP)
@@ -368,13 +368,9 @@ class MoveExecutor:
         self.game_state.castling_rights_log.append(rights_copy)
 
     def _restore_castling_rights_after_undo(self):
-        if self.game_state.castling_rights_log:
-            self.game_state.castling_rights = self.game_state.castling_rights_log.pop()
-        else:
-            self.game_state.castling_rights = {
-                'w': {'king_side': True, 'queen_side': True},
-                'b': {'king_side': True, 'queen_side': True},
-            }
+        if not self.game_state.castling_rights_log:
+            return
+        self.game_state.castling_rights = self.game_state.castling_rights_log.pop()
 
     def _remove_castling_rights_after_move(self, moved_piece, moved_square, target_piece, target_square):
         color = piece_color(moved_piece)
