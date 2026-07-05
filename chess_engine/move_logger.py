@@ -59,7 +59,7 @@ class MoveLogger:
         to_notation = self.square_to_notation(target_square)
 
         castle_name = 'KINGSIDE' if side == 'king_side' else 'QUEENSIDE'
-        move_log = f"[UNDO_CASTLING] {moved_piece} {from_notation}->{to_notation}; {castle_name}"
+        move_log = f"[UNDO] {moved_piece} {from_notation}->{to_notation}; {castle_name}"
         self.move_log.append(move_log)
         print(move_log)
 
