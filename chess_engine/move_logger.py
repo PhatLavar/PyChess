@@ -54,6 +54,15 @@ class MoveLogger:
         self.move_log.append(move_log)
         print(move_log)
 
+    def record_castling_undo(self, moved_piece, moved_square, target_square, side):
+        from_notation = self.square_to_notation(moved_square)
+        to_notation = self.square_to_notation(target_square)
+
+        castle_name = 'KINGSIDE' if side == 'king_side' else 'QUEENSIDE'
+        move_log = f"[UNDO_CASTLING] {moved_piece} {from_notation}->{to_notation}; {castle_name}"
+        self.move_log.append(move_log)
+        print(move_log)
+
 
     ####################################################################################
     # ------------------------------ SAVE MOVE NOTATION --------------------------------

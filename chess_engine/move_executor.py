@@ -103,6 +103,7 @@ class MoveExecutor:
             self.board.set_piece(target_square, target_prev_piece)
 
         self._restore_en_passant_state_after_undo(last_move)
+        self._restore_castling_rights_after_undo()
         self._update_king_position(moved_piece, moved_square)
 
         if len(self.move_logger.move_log) > 0:
@@ -115,6 +116,13 @@ class MoveExecutor:
                 moved_square,
                 target_prev_piece,
                 last_move['en_passant_capture_square']
+            )
+        elif last_move.get('castling'):
+            self.move_logger.record_castling_undo(
+                moved_piece,
+                target_square,
+                moved_square,
+                last_move['castling_side']
             )
         else:
             self.move_logger.record_move(moved_piece, target_square, target_prev_piece, moved_square, move_type='UNDO')
@@ -358,6 +366,15 @@ class MoveExecutor:
             'b': self.game_state.castling_rights['b'].copy(),
         }
         self.game_state.castling_rights_log.append(rights_copy)
+
+    def _restore_castling_rights_after_undo(self):
+        if self.game_state.castling_rights_log:
+            self.game_state.castling_rights = self.game_state.castling_rights_log.pop()
+        else:
+            self.game_state.castling_rights = {
+                'w': {'king_side': True, 'queen_side': True},
+                'b': {'king_side': True, 'queen_side': True},
+            }
 
     def _remove_castling_rights_after_move(self, moved_piece, moved_square, target_piece, target_square):
         color = piece_color(moved_piece)
