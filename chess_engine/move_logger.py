@@ -45,7 +45,16 @@ class MoveLogger:
         self.move_log.append(move_log)
         print(move_log)
 
-    
+    def record_castling_move(self, moved_piece, moved_square, target_square, side):
+        from_notation = self.square_to_notation(moved_square)
+        to_notation = self.square_to_notation(target_square)
+
+        castle_name = 'KINGSIDE' if side == 'king_side' else 'QUEENSIDE'
+        move_log = f"[CASTLING] {moved_piece} {from_notation}->{to_notation}; {castle_name}"
+        self.move_log.append(move_log)
+        print(move_log)
+
+
     ####################################################################################
     # ------------------------------ SAVE MOVE NOTATION --------------------------------
     ####################################################################################
@@ -77,4 +86,18 @@ class MoveLogger:
             'capture': True,
             'en_passant': True,
             'en_passant_capture_square': captured_square,
+        })
+
+    def save_castling_move(self, moved_piece, moved_square, target_square, rook_piece, rook_square, rook_target_square, side):
+        self.notation.append({
+            'moved_piece': moved_piece,
+            'moved_square': moved_square,
+            'target_piece': '--',
+            'target_square': target_square,
+            'capture': False,
+            'castling': True,
+            'castling_side': side,
+            'rook_piece': rook_piece,
+            'rook_square': rook_square,
+            'rook_target_square': rook_target_square,
         })

@@ -4,6 +4,7 @@ from chess_engine.move import Move
 from chess_engine.move_validator import MoveValidator
 import pygame as pg
 
+
 class GameState:
     def __init__(self):
         self.white_to_move = True
@@ -32,6 +33,12 @@ class GameState:
 
         self.en_passant_target = None       # (row, col)
         self.last_double_pawn_move = None   # {'pawn', 'from_square', 'to_square'}
+
+        self.castling_rights = {
+            'w': {'king_side': True, 'queen_side': True},
+            'b': {'king_side': True, 'queen_side': True}
+        }
+        self.castling_rights_log = []
 
 
     ####################################################################################
