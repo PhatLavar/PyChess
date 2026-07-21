@@ -1,29 +1,12 @@
 import pygame as pg
-from chess_engine.helper import EMP
-MAX_FPS = 60
+from chess_engine.helpers import EMP
 
 
-####################################################################################
-# ------------------------------------ PIECES --------------------------------------
-####################################################################################
-class Piece:
-    PIECES = [
-        'bR', 'bN', 'bB', 'bQ', 'bK', 'bP', 
-        'wR', 'wN', 'wB', 'wQ', 'wK', 'wP',
-    ]
-
-    def __init__(self):
-        pass
-
-
-####################################################################################
-# ------------------------------------- BOARD --------------------------------------
-####################################################################################
 class Board:
     SCREEN_SIZE = 512
     DIMENSION = 8
     SQUARE_SIZE = SCREEN_SIZE // DIMENSION
-    
+
     def __init__(self):
         self.WIDTH = self.HEIGHT = Board.SCREEN_SIZE
         self.DIMENSION = Board.DIMENSION
@@ -40,9 +23,6 @@ class Board:
             ['wR', 'wN', 'wB', 'wQ', 'wK', 'wB', 'wN', 'wR'],
         ]
 
-    ####################################################################################
-    # ----------------------------- PIECE GETTER & SETTER ------------------------------
-    ####################################################################################
     def get_piece(self, square):
         row, col = square
         return self.board[row][col]
@@ -51,10 +31,6 @@ class Board:
         row, col = square
         self.board[row][col] = piece
 
-
-    ####################################################################################
-    # ------------------------------- DRAW GAME SCREEN ---------------------------------
-    ####################################################################################
     def draw(self, screen, piece_images):
         self.draw_board(screen)
         self.draw_pieces(screen, piece_images)

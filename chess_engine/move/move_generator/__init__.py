@@ -1,0 +1,1 @@
+from chess_engine.move.move_generator.move_generator import MoveGenerator
