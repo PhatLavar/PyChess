@@ -1,6 +1,6 @@
 from chess_engine.chess_properties import Board
 from chess_engine.move import Move
-from chess_engine.move.validator import MoveValidator
+from chess_engine.move.move_validator import MoveValidator
 from chess_engine.game_state.game_renderer import GameRenderer
 from chess_engine.game_state.input_handler import InputHandler
 

@@ -1,1 +1,2 @@
-from chess_engine.move.move_generator.move_generator import MoveGenerator
+from .move_generator import MoveGenerator
+__all__ = ['MoveGenerator']

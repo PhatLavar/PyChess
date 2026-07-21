@@ -1,1 +1,2 @@
-from chess_engine.move.move_executor.move_executor import MoveExecutor
+from .move_executor import MoveExecutor
+__all__ = ['MoveExecutor']

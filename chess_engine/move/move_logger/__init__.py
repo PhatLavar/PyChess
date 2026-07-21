@@ -1,1 +1,2 @@
-from chess_engine.move.move_logger.move_logger import MoveLogger
+from .move_logger import MoveLogger
+__all__ = ['MoveLogger']
