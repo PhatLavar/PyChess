@@ -20,9 +20,14 @@ class GameRenderer:
             )
 
     def draw_game_state(self, screen):
-        self.board.draw(screen, self.game_state.PIECE_IMAGES)
+        self.board.draw_board(screen)
         self.highlight_renderer.draw(screen)
-        self.board.draw_pieces(screen, self.game_state.PIECE_IMAGES)
+        self.board.draw_pieces(
+            screen,
+            self.game_state.PIECE_IMAGES,
+            should_skip_piece=self.game_state.move_animation.should_skip_piece
+        )
+        self.game_state.move_animation.draw(screen)
 
         if self.game_state.promotion_pending:
             self.game_state.input_handler.promotion_ui.draw(screen)

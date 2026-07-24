@@ -42,6 +42,12 @@ class PawnPromotionExecutor:
         self.board.set_piece(target_square, promoted_piece)
         self.board.set_piece(moved_square, EMP)
 
+        self.game_state.move_animation.start(
+            promoted_piece,
+            moved_square,
+            target_square
+        )
+
         self.move_logger.record_move(
             moved_piece,
             moved_square,

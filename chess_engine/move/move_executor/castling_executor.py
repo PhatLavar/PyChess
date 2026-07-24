@@ -35,6 +35,17 @@ class CastlingExecutor:
         self.board.set_piece(rook_target, rook_piece)
         self.board.set_piece(rook_start, EMP)
 
+        self.game_state.move_animation.start(
+            moved_piece,
+            moved_square,
+            target_square
+        )
+        self.game_state.move_animation.start(
+            rook_piece,
+            rook_start,
+            rook_target
+        )
+
         self.state_updater.update_king_position(moved_piece, target_square)
 
         self.state_updater.remove_castling_rights_after_move(

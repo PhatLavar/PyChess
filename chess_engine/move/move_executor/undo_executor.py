@@ -13,6 +13,8 @@ class UndoExecutor:
         return self.game_state.board
 
     def execute(self):
+        self.game_state.move_animation.stop()
+
         if self.game_state.promotion_pending:
             self._clear_promotion_state()
             self.state_updater.reset_click_state()

@@ -24,6 +24,12 @@ class EnPassantExecutor:
         self.board.set_piece(moved_square, EMP)
         self.board.set_piece(captured_square, EMP)
 
+        self.game_state.move_animation.start(
+            moved_piece,
+            moved_square,
+            target_square
+        )
+
         self.move_logger.record_move(
             moved_piece,
             moved_square,

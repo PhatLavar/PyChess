@@ -52,6 +52,12 @@ class NormalMoveExecutor:
         self.board.set_piece(moved_square, EMP)
         self.state_updater.update_king_position(moved_piece, target_square)
 
+        self.game_state.move_animation.start(
+            moved_piece,
+            moved_square,
+            target_square
+        )
+
 
     def _record_successful_move(
         self,

@@ -31,9 +31,9 @@ class Board:
         row, col = square
         self.board[row][col] = piece
 
-    def draw(self, screen, piece_images):
+    def draw(self, screen, piece_images, should_skip_piece=None):
         self.draw_board(screen)
-        self.draw_pieces(screen, piece_images)
+        self.draw_pieces(screen, piece_images, should_skip_piece)
 
     def draw_board(self, screen):
         colors = [pg.Color('white'), pg.Color('gray')]
@@ -45,10 +45,15 @@ class Board:
                     self._square_rect(row, col)
                 )
 
-    def draw_pieces(self, screen, piece_images):
+    def draw_pieces(self, screen, piece_images, should_skip_piece=None):
         for row in range(self.DIMENSION):
             for col in range(self.DIMENSION):
+                square = (row, col)
                 piece = self.board[row][col]
+
+                if should_skip_piece is not None and should_skip_piece(square):
+                    continue
+
                 if piece != EMP:
                     screen.blit(piece_images[piece], self._square_rect(row, col))
 

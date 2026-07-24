@@ -3,6 +3,7 @@ from chess_engine.move import Move
 from chess_engine.move.move_validator import MoveValidator
 from chess_engine.game_state.game_renderer import GameRenderer
 from chess_engine.game_state.input_handler import InputHandler
+from chess_engine.game_state.move_animation import MoveAnimation
 
 
 class GameState:
@@ -11,6 +12,9 @@ class GameState:
         self.board = Board()
         self.move = Move(self)
         self.move_validator = MoveValidator(self)
+        self.renderer = GameRenderer(self)
+        self.input_handler = InputHandler(self)
+        self.move_animation = MoveAnimation(self)
 
         self.PIECE_IMAGES = {}
 
@@ -43,9 +47,6 @@ class GameState:
 
         self.hovered_square = None
         self.selected_legal_moves = []
-
-        self.renderer = GameRenderer(self)
-        self.input_handler = InputHandler(self)
 
     def load_piece_images(self):
         self.renderer.load_piece_images()

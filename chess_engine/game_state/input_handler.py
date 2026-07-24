@@ -12,6 +12,9 @@ class InputHandler:
         return self.game_state.board
 
     def handle_mouse_click(self, mouse_location):
+        if self.game_state.move_animation.is_animating:
+            return
+
         if self.game_state.promotion_pending:
             self.promotion_ui.handle_click(mouse_location)
             return
