@@ -41,6 +41,9 @@ class GameState:
         }
         self.castling_rights_log = []
 
+        self.hovered_square = None
+        self.selected_legal_moves = []
+
         self.renderer = GameRenderer(self)
         self.input_handler = InputHandler(self)
 
@@ -52,3 +55,6 @@ class GameState:
 
     def handle_mouse_click(self, mouse_location):
         self.input_handler.handle_mouse_click(mouse_location)
+    
+    def handle_mouse_motion(self, mouse_location):
+        self.input_handler.handle_mouse_motion(mouse_location)

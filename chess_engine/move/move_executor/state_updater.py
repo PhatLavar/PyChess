@@ -9,6 +9,7 @@ class StateUpdater:
     def reset_click_state(self):
         self.game_state.selected_square = ()
         self.game_state.player_clicked = []
+        self.game_state.selected_legal_moves = []
 
 
     def update_king_position(self, piece, square):

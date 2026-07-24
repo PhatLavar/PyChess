@@ -28,6 +28,9 @@ class InputHandler:
         if len(self.game_state.player_clicked) == 2:
             self._execute_selected_move()
 
+    def handle_mouse_motion(self, mouse_location):
+        self.game_state.hovered_square = self._get_square(mouse_location)
+
     def _get_square(self, mouse_location):
         col = mouse_location[0] // self.board.SQUARE_SIZE
         row = mouse_location[1] // self.board.SQUARE_SIZE
@@ -48,10 +51,12 @@ class InputHandler:
     def _reset_selection(self):
         self.game_state.selected_square = ()
         self.game_state.player_clicked = []
+        self.game_state.selected_legal_moves = []
 
     def _select_square(self, square):
         self.game_state.selected_square = square
         self.game_state.player_clicked.append(square)
+        self._update_selected_legal_moves(square)
 
     def _execute_selected_move(self):
         self.game_state.moved_square = self.game_state.player_clicked[0]
@@ -68,3 +73,10 @@ class InputHandler:
             self.game_state.moved_square,
             self.game_state.target_square
         )
+    
+    def _update_selected_legal_moves(self, square):
+        self.game_state.selected_legal_moves = [
+            target_square
+            for moved_square, target_square in self.game_state.move.get_valid_moves()
+            if moved_square == square
+        ]

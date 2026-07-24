@@ -30,6 +30,8 @@ class ChessGame:
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 return False
+            elif event.type == pg.MOUSEMOTION:
+                self.game_state.handle_mouse_motion(pg.mouse.get_pos())
             elif event.type == pg.MOUSEBUTTONDOWN:
                 self.game_state.handle_mouse_click(pg.mouse.get_pos())
             elif event.type == pg.KEYDOWN:
