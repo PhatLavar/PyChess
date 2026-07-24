@@ -24,7 +24,7 @@ class HighlightRenderer:
         self._draw_square_overlay(
             screen,
             square,
-            color=(255, 255, 255),
+            color=(153, 255, 102),
             alpha=70
         )
 
@@ -60,24 +60,6 @@ class HighlightRenderer:
                     alpha=130
                 )
 
-    def _draw_square_overlay(self, screen, square, color, alpha):
-        row, col = square
-
-        overlay = pg.Surface(
-            (self.board.SQUARE_SIZE, self.board.SQUARE_SIZE),
-            pg.SRCALPHA
-        )
-
-        overlay.fill((*color, alpha))
-
-        screen.blit(
-            overlay,
-            (
-                col * self.board.SQUARE_SIZE,
-                row * self.board.SQUARE_SIZE
-            )
-        )
-
     def _draw_checked_king_highlight(self, screen):
         validator = self.game_state.move_validator
 
@@ -96,3 +78,21 @@ class HighlightRenderer:
                 color=(255, 0, 0),
                 alpha=150
             )
+
+    def _draw_square_overlay(self, screen, square, color, alpha):
+        row, col = square
+
+        overlay = pg.Surface(
+            (self.board.SQUARE_SIZE, self.board.SQUARE_SIZE),
+            pg.SRCALPHA
+        )
+
+        overlay.fill((*color, alpha))
+
+        screen.blit(
+            overlay,
+            (
+                col * self.board.SQUARE_SIZE,
+                row * self.board.SQUARE_SIZE
+            )
+        )
