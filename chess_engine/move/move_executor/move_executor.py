@@ -39,13 +39,6 @@ class MoveExecutor:
             return
 
         if (moved_square, target_square) not in self.move_generator.get_valid_moves():
-            self.move_logger.record_move(
-                moved_piece,
-                moved_square,
-                target_piece,
-                target_square,
-                move_type='INVALID'
-            )
             self._reset_click_state()
             return
 
