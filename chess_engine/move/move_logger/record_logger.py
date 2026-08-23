@@ -22,15 +22,34 @@ class RecordLogger:
 
         move_details = f"{moved_piece} {from_notation}->{to_notation}"
 
-        if move_type == 'CAPTURE':
-            move_details += f" x {target_piece}"
-        elif move_type == 'EN_PASSANT':
+        if target_piece != EMP and move_type in (
+            'CAPTURE', 'EN_PASSANT', 'CHECK', 'CHECKMATE', 'STALEMATE'
+        ):
             move_details += f" x {target_piece}"
         elif move_type == 'UNDO' and target_piece != EMP:
             move_details += f"; {target_piece} {from_notation}"
         elif move_type == 'PROMOTION':
             move_details += f"; {target_piece} {to_notation}"
 
+        self._append_log(f"[{move_type}] {move_details}")
+
+    def record_promotion_move(
+        self,
+        moved_piece,
+        moved_square,
+        target_piece,
+        target_square,
+        promotion_piece,
+        move_type='PROMOTION'
+    ):
+        from_notation = self.notation_converter.square_to_notation(moved_square)
+        to_notation = self.notation_converter.square_to_notation(target_square)
+        move_details = f"{moved_piece} {from_notation}->{to_notation}"
+
+        if target_piece != EMP:
+            move_details += f" x {target_piece}"
+
+        move_details += f"; {promotion_piece} {to_notation}"
         self._append_log(f"[{move_type}] {move_details}")
 
     def record_en_passant_undo(
@@ -52,13 +71,20 @@ class RecordLogger:
 
         self._append_log(move_log)
 
-    def record_castling_move(self, moved_piece, moved_square, target_square, side):
+    def record_castling_move(
+        self,
+        moved_piece,
+        moved_square,
+        target_square,
+        side,
+        move_type='CASTLING'
+    ):
         from_notation = self.notation_converter.square_to_notation(moved_square)
         to_notation = self.notation_converter.square_to_notation(target_square)
 
         castle_name = 'KINGSIDE' if side == 'king_side' else 'QUEENSIDE'
         move_log = (
-            f"[CASTLING] {moved_piece} {from_notation}->{to_notation}; "
+            f"[{move_type}] {moved_piece} {from_notation}->{to_notation}; "
             f"{castle_name}"
         )
 
@@ -75,6 +101,10 @@ class RecordLogger:
         )
 
         self._append_log(move_log)
+
+    def record_end_match(self, result):
+        display_result = result
+        self._append_log(f"[ENDMATCH] {display_result}")
 
     def _append_log(self, move_log):
         self.move_log.append(move_log)

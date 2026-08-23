@@ -4,9 +4,12 @@ from chess_engine.move.move_validator import MoveValidator
 from chess_engine.game_state.game_renderer import GameRenderer
 from chess_engine.game_state.input_handler import InputHandler
 from chess_engine.game_state.move_animation import MoveAnimation
+import pygame as pg
 
 
 class GameState:
+    GAME_OVER_DELAY = 5000
+
     def __init__(self):
         self.white_to_move = True
         self.board = Board()
@@ -48,6 +51,11 @@ class GameState:
         self.hovered_square = None
         self.selected_legal_moves = []
 
+        self.game_over = False
+        self.game_result = None       # 'checkmate' or 'stalemate'
+        self.winner = None            # 'WHITE WINS', 'BLACK WINS', or None
+        self.game_over_started_at = None
+
     def load_piece_images(self):
         self.renderer.load_piece_images()
 
@@ -59,3 +67,57 @@ class GameState:
     
     def handle_mouse_motion(self, mouse_location):
         self.input_handler.handle_mouse_motion(mouse_location)
+
+    def finish_turn(self):
+        """
+        Switches turns and evaluates the new side-to-move.
+
+        Returns:
+            A (move_status, match_result) tuple. move_status is CHECK,
+            CHECKMATE, STALEMATE, or None. match_result is only set when
+            the match ends.
+        """
+        self.white_to_move = not self.white_to_move
+
+        if self.move_validator.is_checkmate():
+            winner = 'BLACK WINS!' if self.white_to_move else 'WHITE WINS!'
+            self._set_game_over(
+                result='checkmate',
+                winner=winner
+            )
+            return 'CHECKMATE', winner
+
+        if self.move_validator.is_stalemate():
+            self._set_game_over(
+                result='stalemate',
+                winner=None
+            )
+            return 'STALEMATE', 'DRAW!'
+
+        if self.move_validator.in_check():
+            return 'CHECK', None
+
+        return None, None
+
+    def _set_game_over(self, result, winner):
+        self.game_over = True
+        self.game_result = result
+        self.winner = winner
+        self.game_over_started_at = pg.time.get_ticks()
+
+        self.selected_square = ()
+        self.player_clicked = []
+        self.selected_legal_moves = []
+
+    def get_game_over_elapsed(self):
+        if self.game_over_started_at is None:
+            return 0
+
+        return pg.time.get_ticks() - self.game_over_started_at
+
+    def get_losing_king_square(self):
+        return (
+            self.white_king_position
+            if self.white_to_move
+            else self.black_king_position
+        )

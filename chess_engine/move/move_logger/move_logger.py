@@ -51,12 +51,38 @@ class MoveLogger:
             captured_square
         )
 
-    def record_castling_move(self, moved_piece, moved_square, target_square, side):
+    def record_castling_move(
+        self,
+        moved_piece,
+        moved_square,
+        target_square,
+        side,
+        move_type='CASTLING'
+    ):
         self.record_logger.record_castling_move(
             moved_piece,
             moved_square,
             target_square,
-            side
+            side,
+            move_type
+        )
+
+    def record_promotion_move(
+        self,
+        moved_piece,
+        moved_square,
+        target_piece,
+        target_square,
+        promotion_piece,
+        move_type='PROMOTION'
+    ):
+        self.record_logger.record_promotion_move(
+            moved_piece,
+            moved_square,
+            target_piece,
+            target_square,
+            promotion_piece,
+            move_type
         )
 
     def record_castling_undo(self, moved_piece, moved_square, target_square, side):
@@ -66,6 +92,9 @@ class MoveLogger:
             target_square,
             side
         )
+
+    def record_end_match(self, result):
+        self.record_logger.record_end_match(result)
 
     def save_move(
         self,

@@ -23,6 +23,9 @@ class MoveExecutor:
         return self.game_state.board
 
     def handle_piece_move(self, moved_square, target_square):
+        if self.game_state.game_over:
+            return
+
         moved_piece = self.game_state.moved_piece
         target_piece = self.game_state.target_piece
 
@@ -76,6 +79,8 @@ class MoveExecutor:
         self.promotion_executor.execute(chosen_type)
 
     def handle_undo_move(self):
+        if self.game_state.game_over:
+            return
         self.undo_executor.execute()
 
     def _is_same_color_target(self, moved_piece, target_piece):

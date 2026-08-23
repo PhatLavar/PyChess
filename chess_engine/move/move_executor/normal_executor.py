@@ -24,25 +24,23 @@ class NormalMoveExecutor:
         )
 
         self._make_move(moved_piece, moved_square, target_square)
-        self._record_successful_move(
-            moved_piece,
-            moved_square,
-            target_piece,
-            target_square
-        )
-
         self.state_updater.update_en_passant_state(
             moved_piece,
             moved_square,
             target_square
         )
 
-        self._record_game_status(
+        move_status, match_result = self.game_state.finish_turn()
+        self._record_successful_move(
             moved_piece,
             moved_square,
             target_piece,
-            target_square
+            target_square,
+            move_status or 'MOVE'
         )
+
+        if match_result is not None:
+            self.move_logger.record_end_match(match_result)
 
         self.state_updater.reset_click_state()
 
@@ -64,7 +62,8 @@ class NormalMoveExecutor:
         moved_piece,
         moved_square,
         target_piece,
-        target_square
+        target_square,
+        move_type
     ):
         is_capture = target_piece != EMP
 
@@ -73,7 +72,7 @@ class NormalMoveExecutor:
             moved_square,
             target_piece,
             target_square,
-            move_type='MOVE'
+            move_type=move_type
         )
 
         self.move_logger.save_move(
@@ -83,41 +82,3 @@ class NormalMoveExecutor:
             target_square,
             is_capture
         )
-
-
-    def _record_game_status(
-        self,
-        moved_piece,
-        moved_square,
-        target_piece,
-        target_square
-    ):
-        self.game_state.white_to_move = not self.game_state.white_to_move
-        validator = self.game_state.move_validator
-
-        if validator.is_checkmate():
-            self.move_logger.record_move(
-                moved_piece,
-                moved_square,
-                target_piece,
-                target_square,
-                move_type='CHECKMATE'
-            )
-            
-        elif validator.is_stalemate():
-            self.move_logger.record_move(
-                moved_piece,
-                moved_square,
-                target_piece,
-                target_square,
-                move_type='STALEMATE'
-            )
-
-        elif validator._in_check():
-            self.move_logger.record_move(
-                moved_piece,
-                moved_square,
-                target_piece,
-                target_square,
-                move_type='CHECK'
-            )
