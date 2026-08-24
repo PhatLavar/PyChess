@@ -46,15 +46,10 @@ class ChessGame:
 
                 if action == 'rematch':
                     self._rematch()
-                elif action == 'change_mode':
-                    self._change_gamemode()
             elif event.type == pg.KEYDOWN:
                 if event.key == pg.K_z:
                     self.game_state.move.handle_undo_move()
         return True
-
-    def _change_gamemode(self):
-        print('Change Gamemode is not implemented yet.')
 
     def _draw(self):
         self.game_state.draw_game_state(self.screen)

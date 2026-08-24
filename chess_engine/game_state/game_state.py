@@ -9,7 +9,7 @@ import pygame as pg
 
 
 class GameState:
-    GAME_OVER_DELAY = 2000
+    GAME_OVER_DELAY = 3000
 
     def __init__(self):
         self.white_to_move = True
@@ -19,6 +19,7 @@ class GameState:
         self.renderer = GameRenderer(self)
         self.input_handler = InputHandler(self)
         self.move_animation = MoveAnimation(self)
+        self.gamemode = 'Gamemode 1'
         self.game_over_ui = GameOverUI(self)
 
         self.PIECE_IMAGES = {}
