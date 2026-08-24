@@ -61,6 +61,9 @@ class HighlightRenderer:
                 )
 
     def _draw_checked_king_highlight(self, screen):
+        if self.game_state.game_over:
+            return
+
         validator = self.game_state.move_validator
 
         if validator.in_check('w'):

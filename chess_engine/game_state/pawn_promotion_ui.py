@@ -12,9 +12,18 @@ class PromotionUI:
         overlay.fill(pg.Color('lightgray'))
         screen.blit(overlay, (0, 0))
 
+        mouse_position = pg.mouse.get_pos()
+
         for piece_type, rect in self.choice_rects():
             piece = self.game_state.promotion_color + piece_type
-            pg.draw.rect(screen, pg.Color('white'), rect)
+            is_hovered = rect.collidepoint(mouse_position)
+            button_color = (
+                pg.Color('lightgray')
+                if is_hovered
+                else pg.Color('white')
+            )
+
+            pg.draw.rect(screen, button_color, rect)
             pg.draw.rect(screen, pg.Color('black'), rect, 2)
 
             if piece in self.game_state.PIECE_IMAGES:

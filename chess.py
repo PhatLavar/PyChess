@@ -6,10 +6,11 @@ import pygame as pg
 class ChessGame:
     def __init__(self):
         pg.init()
-        self.screen = pg.display.set_mode((Board.SCREEN_SIZE, Board.SCREEN_SIZE))
+        self.screen = pg.display.set_mode(
+            (Board.SCREEN_SIZE, Board.SCREEN_SIZE)
+        )
         self.clock = pg.time.Clock()
-        self.game_state = GameState()
-        self.game_state.load_piece_images()
+        self._rematch()
 
 
     ####################################################################################
@@ -24,6 +25,14 @@ class ChessGame:
 
 
     ####################################################################################
+    # ----------------------------------- REMATCH --------------------------------------
+    ####################################################################################
+    def _rematch(self):
+        self.game_state = GameState()
+        self.game_state.load_piece_images()
+
+
+    ####################################################################################
     # ------------------------ DRAW GAME STATE + HANDLE EVENT --------------------------
     ####################################################################################
     def _handle_events(self):
@@ -33,11 +42,19 @@ class ChessGame:
             elif event.type == pg.MOUSEMOTION:
                 self.game_state.handle_mouse_motion(pg.mouse.get_pos())
             elif event.type == pg.MOUSEBUTTONDOWN:
-                self.game_state.handle_mouse_click(pg.mouse.get_pos())
+                action = self.game_state.handle_mouse_click(pg.mouse.get_pos())
+
+                if action == 'rematch':
+                    self._rematch()
+                elif action == 'change_mode':
+                    self._change_gamemode()
             elif event.type == pg.KEYDOWN:
                 if event.key == pg.K_z:
                     self.game_state.move.handle_undo_move()
         return True
+
+    def _change_gamemode(self):
+        print('Change Gamemode is not implemented yet.')
 
     def _draw(self):
         self.game_state.draw_game_state(self.screen)

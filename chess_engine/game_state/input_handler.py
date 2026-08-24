@@ -35,6 +35,10 @@ class InputHandler:
             self._execute_selected_move()
 
     def handle_mouse_motion(self, mouse_location):
+        if self.game_state.game_over or self.game_state.promotion_pending:
+            self.game_state.hovered_square = None
+            return
+
         self.game_state.hovered_square = self._get_square(mouse_location)
 
     def _get_square(self, mouse_location):

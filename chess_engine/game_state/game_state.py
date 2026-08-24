@@ -4,11 +4,12 @@ from chess_engine.move.move_validator import MoveValidator
 from chess_engine.game_state.game_renderer import GameRenderer
 from chess_engine.game_state.input_handler import InputHandler
 from chess_engine.game_state.move_animation import MoveAnimation
+from chess_engine.game_state.game_over_ui import GameOverUI
 import pygame as pg
 
 
 class GameState:
-    GAME_OVER_DELAY = 5000
+    GAME_OVER_DELAY = 2000
 
     def __init__(self):
         self.white_to_move = True
@@ -18,6 +19,7 @@ class GameState:
         self.renderer = GameRenderer(self)
         self.input_handler = InputHandler(self)
         self.move_animation = MoveAnimation(self)
+        self.game_over_ui = GameOverUI(self)
 
         self.PIECE_IMAGES = {}
 
@@ -63,7 +65,11 @@ class GameState:
         self.renderer.draw_game_state(screen)
 
     def handle_mouse_click(self, mouse_location):
+        if self.game_over:
+            return self.game_over_ui.handle_click(mouse_location)
+
         self.input_handler.handle_mouse_click(mouse_location)
+        return None
     
     def handle_mouse_motion(self, mouse_location):
         self.input_handler.handle_mouse_motion(mouse_location)
