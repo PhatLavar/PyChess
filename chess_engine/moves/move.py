@@ -59,3 +59,7 @@ class Move:
         Append a human-readable move entry and return no value.
         """
         self.logger.record_move(moved_piece, moved_square, target_piece, target_square, move_type)
+
+    def record_end_match(self, result):
+        """Append and print the final match result entry."""
+        self.logger.record_end_match(result)

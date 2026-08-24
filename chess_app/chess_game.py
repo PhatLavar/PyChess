@@ -110,6 +110,26 @@ class ChessGame:
         self.match_history_saved = True
         return history_path
 
+    def terminate_match(self):
+        """
+        Record and save an unfinished match when the window is closed.
+
+        Returns:
+            The saved history `Path`, or `None` 
+            when this match was already saved.
+        """
+        if self.match_history_saved:
+            return None
+
+        if not self.game_state.game_over:
+            self.game_state.move.record_end_match('TERMINATED')
+
+        history_path = self.match_history.save(
+            self.game_state.move.move_log
+        )
+        self.match_history_saved = True
+        return history_path
+
     def _print_match_separator(self):
         """
         Print three separator lines without modifying either move logger.

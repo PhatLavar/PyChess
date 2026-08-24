@@ -21,6 +21,7 @@ class EventHandler:
         """
         for event in pg.event.get():
             if event.type == pg.QUIT:
+                self.chess_game.terminate_match()
                 return False
 
             if event.type == pg.MOUSEMOTION:
