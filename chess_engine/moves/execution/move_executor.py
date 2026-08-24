@@ -7,7 +7,9 @@ from chess_engine.utilities import EMP, piece_color
 
 
 class MoveExecutor:
-    """Validate requested moves and delegate them to the correct executor."""
+    """
+    Validate requested moves and delegate them to the correct executor.
+    """
 
     MOVED = 'moved'
     INVALID = 'invalid'
@@ -16,7 +18,9 @@ class MoveExecutor:
     BLOCKED = 'blocked'
 
     def __init__(self, game_state, move_generator, move_logger):
-        """Create specialized executors that share state and history."""
+        """
+        Create specialized executors that share state and history.
+        """
         self.game_state = game_state
         self.move_generator = move_generator
         self.move_logger = move_logger
@@ -29,11 +33,15 @@ class MoveExecutor:
 
     @property
     def board(self):
-        """Return the active engine board."""
+        """
+        Return the active engine board.
+        """
         return self.game_state.board
 
     def handle_piece_move(self, moved_square, target_square):
-        """Attempt a move and return a named outcome for the application layer."""
+        """
+        Attempt a move and return a named outcome for the application layer.
+        """
         if self.game_state.game_over:
             return self.BLOCKED
 
@@ -77,20 +85,26 @@ class MoveExecutor:
         return self.MOVED
 
     def handle_pawn_promotion(self, chosen_type):
-        """Complete a pending promotion and return whether it was applied."""
+        """
+        Complete a pending promotion and return whether it was applied.
+        """
         if not self.game_state.promotion_pending:
             return False
         self.promotion_executor.execute(chosen_type)
         return True
 
     def handle_undo_move(self):
-        """Undo the latest move and return whether engine state changed."""
+        """
+        Undo the latest move and return whether engine state changed.
+        """
         if self.game_state.game_over:
             return False
         return self.undo_executor.execute()
 
     def _is_same_color_target(self, moved_piece, target_piece):
-        """Return whether origin and target pieces have the same color."""
+        """
+        Return whether origin and target pieces have the same color.
+        """
         target_color = piece_color(target_piece)
         return target_color is not None and piece_color(moved_piece) == target_color
 

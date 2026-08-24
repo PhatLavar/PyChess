@@ -5,14 +5,18 @@ from chess_ui.screens import PromotionUI
 
 
 class InputHandler:
-    """Translate mouse input into engine moves and UI selection state."""
+    """
+    Translate mouse input into engine moves and UI selection state.
+    """
 
     NO_SQUARE = ()
     MOVE_SELECTION_SIZE = 2
     LATEST_MOVE_INDEX = -1
 
     def __init__(self, game_state, move_animation):
-        """Create empty selection state for the supplied match."""
+        """
+        Create empty selection state for the supplied match.
+        """
         self.game_state = game_state
         self.move_animation = move_animation
         self.promotion_ui = PromotionUI(game_state)
@@ -24,17 +28,20 @@ class InputHandler:
 
     @property
     def board(self):
-        """Return the active engine board."""
+        """
+        Return the active engine board.
+        """
         return self.game_state.board
 
     # Mouse input
 
     def handle_mouse_click(self, mouse_location):
-        """Process a board or promotion click.
+        """
+        Process a board or promotion click.
 
         Returns:
-            ``True`` when a move or promotion changed engine state; otherwise
-            ``False``.
+            'True' when a move or promotion changed engine state; otherwise
+            'False'.
         """
         if self.game_state.game_over or self.move_animation.is_animating:
             return False
@@ -57,7 +64,9 @@ class InputHandler:
         return False
 
     def handle_mouse_motion(self, mouse_location):
-        """Update board hover state, or clear it while a modal is active."""
+        """
+        Update board hover state, or clear it while a modal is active.
+        """
         if self.game_state.game_over or self.game_state.promotion_pending:
             self.hovered_square = None
             return
@@ -65,7 +74,9 @@ class InputHandler:
         self.hovered_square = self._get_square(mouse_location)
 
     def handle_undo(self):
-        """Stop animation, request undo, and return whether state changed."""
+        """
+        Stop animation, request undo, and return whether state changed.
+        """
         self.move_animation.stop()
         state_changed = self.game_state.move.handle_undo_move()
 
@@ -77,19 +88,25 @@ class InputHandler:
     # Selection
 
     def reset_selection(self):
-        """Clear selected squares and legal-move highlights."""
+        """
+        Clear selected squares and legal-move highlights.
+        """
         self.selected_square = self.NO_SQUARE
         self.player_clicked = []
         self.selected_legal_moves = []
 
     def _get_square(self, mouse_location):
-        """Convert a pixel position to a ``(row, column)`` board square."""
+        """
+        Convert a pixel position to a (row, column) board square.
+        """
         col = mouse_location[0] // SQUARE_SIZE
         row = mouse_location[1] // SQUARE_SIZE
         return row, col
 
     def _should_reset_selection(self, square, piece):
-        """Return whether the click should cancel the current selection."""
+        """
+        Return whether the click should cancel the current selection.
+        """
         if square == self.selected_square:
             return True
 
@@ -102,7 +119,9 @@ class InputHandler:
         )
 
     def _select_square(self, square):
-        """Select a square and refresh its legal target highlights."""
+        """
+        Select a square and refresh its legal target highlights.
+        """
         self.selected_square = square
         self.player_clicked.append(square)
         self.selected_legal_moves = [
@@ -114,7 +133,9 @@ class InputHandler:
     # Move execution
 
     def _execute_selected_move(self):
-        """Submit the selected move and translate its outcome into UI state."""
+        """
+        Submit the selected move and translate its outcome into UI state.
+        """
         moved_square, target_square = self.player_clicked
         outcome = self.game_state.move.handle_piece_move(
             moved_square,
@@ -139,7 +160,9 @@ class InputHandler:
         return False
 
     def _handle_promotion_click(self, mouse_location):
-        """Apply a clicked promotion choice and start its animation."""
+        """
+        Apply a clicked promotion choice and start its animation.
+        """
         chosen_type = self.promotion_ui.get_choice(mouse_location)
 
         if chosen_type is None:
@@ -156,7 +179,9 @@ class InputHandler:
         return state_changed
 
     def _animate_latest_move(self):
-        """Create UI animations from the latest engine history record."""
+        """
+        Create UI animations from the latest engine history record.
+        """
         if not self.game_state.move.notation:
             return
 

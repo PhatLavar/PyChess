@@ -1,4 +1,6 @@
-"""Named presentation constants shared across the Pygame UI."""
+"""
+Named presentation constants shared across the Pygame UI.
+"""
 
 BOARD_PIXEL_SIZE = 512
 BOARD_DIMENSION = 8

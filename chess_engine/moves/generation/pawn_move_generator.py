@@ -9,19 +9,27 @@ from chess_engine.utilities import (
 
 
 class PawnMoveGenerator:
-    """Generate pawn pushes, captures, and en passant targets."""
+    """
+    Generate pawn pushes, captures, and en passant targets.
+    """
 
     def __init__(self, game_state):
-        """Bind the active match state."""
+        """
+        Bind the active match state.
+        """
         self.game_state = game_state
 
     @property
     def board(self):
-        """Return the active engine board."""
+        """
+        Return the active engine board.
+        """
         return self.game_state.board
 
     def generate(self, row, col, possible_moves):
-        """Append every pseudo-legal move for one pawn."""
+        """
+        Append every pseudo-legal move for one pawn.
+        """
         color = turn_color(self.game_state.white_to_move)
         enemy = enemy_color(color)
 
@@ -36,7 +44,9 @@ class PawnMoveGenerator:
         self._add_capture_moves(row, col, direction, enemy, possible_moves)
 
     def _add_forward_moves(self, row, col, direction, start_row, possible_moves):
-        """Append unobstructed one- and two-square pawn pushes."""
+        """
+        Append unobstructed one- and two-square pawn pushes.
+        """
         one_step = (row + direction, col)
 
         if self.board.get_piece(one_step) != EMP:
@@ -49,7 +59,9 @@ class PawnMoveGenerator:
             possible_moves.append(((row, col), two_step))
 
     def _add_capture_moves(self, row, col, direction, enemy, possible_moves):
-        """Append enemy captures and the current en passant target."""
+        """
+        Append enemy captures and the current en passant target.
+        """
         for d_col in (-1, 1):
             target = (row + direction, col + d_col)
 

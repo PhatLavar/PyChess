@@ -1,4 +1,6 @@
-"""Move generation, execution, and history."""
+"""
+Move generation, execution, and history.
+"""
 
 from chess_engine.moves.move import Move
 

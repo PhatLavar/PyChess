@@ -6,10 +6,14 @@ from chess_engine.rules.promotion_validator import PromotionValidator
 
 
 class MoveValidator:
-    """Provide one facade over all chess-rule validators."""
+    """
+    Provide one facade over all chess-rule validators.
+    """
 
     def __init__(self, game_state):
-        """Create validators that share the supplied match state."""
+        """
+        Create validators that share the supplied match state.
+        """
         self.game_state = game_state
 
         self.attack_validator = AttackValidator(game_state)
@@ -18,40 +22,76 @@ class MoveValidator:
         self.en_passant_validator = EnPassantValidator(game_state)
         self.promotion_validator = PromotionValidator(game_state)
 
+    ####################################################################################
+    # ----------------------------- UNDER_ATTACK CHECK ---------------------------------
+    ####################################################################################
+
     def _square_under_attack(self, square, enemy_color):
-        """Return whether ``enemy_color`` attacks ``square``."""
+        """
+        Return whether `enemy_color` attacks `square`.
+        """
         return self.attack_validator.square_under_attack(square, enemy_color)
 
+    ####################################################################################
+    # ------------------------- CHECK, CHECKMATE, STALEMATE ----------------------------
+    ####################################################################################
+
     def _in_check(self, color=None):
-        """Internal check query used during move simulation."""
+        """
+        Internal check query used during move simulation.
+        """
         return self.check_validator.in_check(color)
 
     def in_check(self, color=None):
-        """Return whether a color, or side to move, is in check."""
+        """
+        Return whether a color, or side to move, is in check.
+        """
         return self.check_validator.in_check(color)
 
     def is_checkmate(self):
-        """Return whether the active position is checkmate."""
+        """
+        Return whether the active position is checkmate.
+        """
         return self.check_validator.is_checkmate()
 
     def is_stalemate(self):
-        """Return whether the active position is stalemate."""
+        """
+        Return whether the active position is stalemate.
+        """
         return self.check_validator.is_stalemate()
 
+    ####################################################################################
+    # ------------------------------- PROMOTION CHECK ----------------------------------
+    ####################################################################################
+
     def can_pawn_promotion(self, target_square):
-        """Return whether a pawn ending on target must promote."""
+        """
+        Return whether a pawn ending on target must promote.
+        """
         return self.promotion_validator.can_pawn_promotion(target_square)
 
+    ####################################################################################
+    # ------------------------------ EN PASSANT CHECK ----------------------------------
+    ####################################################################################
+
     def is_en_passant_move(self, moved_piece, moved_square, target_square):
-        """Return whether the supplied move is en passant."""
+        """
+        Return whether the supplied move is en passant.
+        """
         return self.en_passant_validator.is_en_passant_move(
             moved_piece,
             moved_square,
             target_square
         )
 
+    ####################################################################################
+    # ------------------------------- CASTLING CHECK -----------------------------------
+    ####################################################################################
+
     def is_castling_move(self, moved_piece, moved_square, target_square):
-        """Return whether the supplied move is castling."""
+        """
+        Return whether the supplied move is castling.
+        """
         return self.castling_validator.is_castling_move(
             moved_piece,
             moved_square,
@@ -59,5 +99,7 @@ class MoveValidator:
         )
 
     def can_castle(self, color, side):
-        """Return whether the requested castling move is legal."""
+        """
+        Return whether the requested castling move is legal.
+        """
         return self.castling_validator.can_castle(color, side)

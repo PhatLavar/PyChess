@@ -4,21 +4,31 @@ from chess_ui.config import MOVE_ANIMATION_DURATION_MS, SQUARE_SIZE
 
 
 class MoveAnimation:
-    """Animate one or more pieces without changing engine state."""
+    """
+    Animate one or more pieces without changing engine state.
+    """
 
     def __init__(self):
-        """Create an empty animation queue."""
+        """
+        Create an empty animation queue.
+        """
         self.animations = []
 
     @property
     def is_animating(self):
-        """Return ``True`` while at least one piece is still moving."""
+        """
+        Return `True` while at least one piece is still moving.
+        """
         return bool(self.animations)
 
-    # Animation lifecycle
+    ####################################################################################
+    # ----------------------------- ANIMATION LIFECYCLE --------------------------------
+    ####################################################################################
 
     def start(self, piece, start_square, end_square):
-        """Queue a piece animation and return the created animation record."""
+        """
+        Queue a piece animation and return the created animation record.
+        """
         animation = {
             'piece': piece,
             'start_square': start_square,
@@ -29,13 +39,19 @@ class MoveAnimation:
         return animation
 
     def stop(self):
-        """Discard all active animations."""
+        """
+        Discard all active animations.
+        """
         self.animations.clear()
 
-    # Rendering
+    ####################################################################################
+    # ---------------------------------- RENDERING -------------------------------------
+    ####################################################################################
 
     def draw(self, screen, piece_images):
-        """Draw active animations and remove completed ones."""
+        """
+        Draw active animations and remove completed ones.
+        """
         current_time = pg.time.get_ticks()
         active_animations = []
 
@@ -57,14 +73,18 @@ class MoveAnimation:
         self.animations = active_animations
 
     def should_skip_piece(self, square):
-        """Return whether a board piece is currently drawn by the animator."""
+        """
+        Return whether a board piece is currently drawn by the animator.
+        """
         return any(
             animation['end_square'] == square
             for animation in self.animations
         )
 
     def _interpolate_position(self, animation, progress):
-        """Return the pixel position between an animation's start and end."""
+        """
+        Return the pixel position between an animation's start and end.
+        """
         start_row, start_col = animation['start_square']
         end_row, end_col = animation['end_square']
 

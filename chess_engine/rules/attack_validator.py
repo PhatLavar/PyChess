@@ -11,19 +11,27 @@ from chess_engine.utilities import (
 
 
 class AttackValidator:
-    """Determine whether a square is attacked by a specified color."""
+    """
+    Determine whether a square is attacked by a specified color.
+    """
 
     def __init__(self, game_state):
-        """Bind the active match state."""
+        """
+        Bind the active match state.
+        """
         self.game_state = game_state
 
     @property
     def board(self):
-        """Return the active engine board."""
+        """
+        Return the active engine board.
+        """
         return self.game_state.board
 
     def square_under_attack(self, square, enemy_color):
-        """Return whether any enemy pawn, step piece, or slider attacks square."""
+        """
+        Return whether any enemy pawn, step piece, or slider attacks square.
+        """
         row, col = square
 
         if self._attacked_by_pawn(row, col, enemy_color):
@@ -44,7 +52,9 @@ class AttackValidator:
         return False
 
     def _attacked_by_pawn(self, row, col, enemy_color):
-        """Return whether an enemy pawn attacks the supplied coordinates."""
+        """
+        Return whether an enemy pawn attacks the supplied coordinates.
+        """
         pawn_direction = 1 if enemy_color == 'w' else -1
 
         for d_col in (-1, 1):
@@ -59,7 +69,9 @@ class AttackValidator:
         return False
 
     def _attacked_by_step_piece(self, row, col, enemy, directions, attacker_type):
-        """Return whether a knight-like or king-like attacker reaches square."""
+        """
+        Return whether a knight-like or king-like attacker reaches square.
+        """
         for d_row, d_col in directions:
             attack_row = row + d_row
             attack_col = col + d_col
@@ -79,7 +91,9 @@ class AttackValidator:
         directions,
         valid_piece_types
     ):
-        """Return whether a rook, bishop, or queen attacks along a ray."""
+        """
+        Return whether a rook, bishop, or queen attacks along a ray.
+        """
         for d_row, d_col in directions:
             attack_row = row + d_row
             attack_col = col + d_col

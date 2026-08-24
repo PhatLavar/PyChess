@@ -11,13 +11,17 @@ from chess_ui.screens import GameOverUI
 
 
 class ChessGame:
-    """Coordinate the Pygame lifecycle, chess engine, and user interface."""
+    """
+    Coordinate the Pygame lifecycle, chess engine, and user interface.
+    """
 
     DEFAULT_GAMEMODE = 'Gamemode 1'
     WINDOW_TITLE = 'PyChess'
 
     def __init__(self):
-        """Initialize Pygame and create the first match."""
+        """
+        Initialize Pygame and create the first match.
+        """
         pg.init()
         pg.display.set_caption(self.WINDOW_TITLE)
 
@@ -30,10 +34,14 @@ class ChessGame:
 
         self.rematch()
 
-    # Application lifecycle
+    ####################################################################################
+    # ---------------------------- APPLICATION LIFECYCLLE ------------------------------
+    ####################################################################################
 
     def run(self):
-        """Run frames until the user closes the window."""
+        """
+        Run frames until the user closes the window.
+        """
         running = True
 
         while running:
@@ -43,10 +51,14 @@ class ChessGame:
 
         pg.quit()
 
-    # Match management
+    ####################################################################################
+    # ------------------------------- MATCH MANAGEMENT ---------------------------------
+    ####################################################################################
 
     def rematch(self):
-        """Replace match and presentation state while preserving gamemode."""
+        """
+        Replace match and presentation state while preserving gamemode.
+        """
         self.game_state = GameState()
         self.move_animation = MoveAnimation()
         self.input_handler = InputHandler(
@@ -66,13 +78,17 @@ class ChessGame:
         self.renderer.load_piece_images()
 
     def change_gamemode(self, gamemode):
-        """Store a confirmed mock gamemode and return its name."""
+        """
+        Store a confirmed mock gamemode and return its name.
+        """
         self.gamemode = gamemode
         return self.gamemode
 
     # Rendering
 
     def draw(self):
-        """Draw and present one complete application frame."""
+        """
+        Draw and present one complete application frame.
+        """
         self.renderer.draw(self.screen)
         pg.display.flip()

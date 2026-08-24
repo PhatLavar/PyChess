@@ -1,4 +1,6 @@
-"""Public interface for the Pygame-independent chess engine."""
+"""
+Public interface for the Pygame-independent chess engine.
+"""
 
 from chess_engine.core import Board, GameState, Piece
 

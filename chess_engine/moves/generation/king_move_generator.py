@@ -8,20 +8,28 @@ from chess_engine.moves.generation.sliding_move_generator import SlidingMoveGene
 
 
 class KingMoveGenerator:
-    """Generate one-square king moves and eligible castling moves."""
+    """
+    Generate one-square king moves and eligible castling moves.
+    """
 
     def __init__(self, game_state):
-        """Bind state and reuse the directional generator for king steps."""
+        """
+        Bind state and reuse the directional generator for king steps.
+        """
         self.game_state = game_state
         self.sliding_generator = SlidingMoveGenerator(game_state)
 
     def generate(self, row, col, possible_moves):
-        """Append pseudo-legal king moves from the supplied square."""
+        """
+        Append pseudo-legal king moves from the supplied square.
+        """
         self.sliding_generator._generate(row, col, KING_MOVES, possible_moves, 1)
         self._add_castling_moves(row, col, possible_moves)
 
     def _add_castling_moves(self, row, col, possible_moves):
-        """Append legal king- and queen-side castling destinations."""
+        """
+        Append legal king- and queen-side castling destinations.
+        """
         color = turn_color(self.game_state.white_to_move)
 
         if (row, col) != CASTLING_KING_START[color]:

@@ -11,31 +11,45 @@ from chess_engine.utilities import (
 
 
 class SlidingMoveGenerator:
-    """Generate ray moves for sliders and one-step directional pieces."""
+    """
+    Generate ray moves for sliders and one-step directional pieces.
+    """
 
     def __init__(self, game_state):
-        """Bind the active match state."""
+        """
+        Bind the active match state.
+        """
         self.game_state = game_state
 
     @property
     def board(self):
-        """Return the active engine board."""
+        """
+        Return the active engine board.
+        """
         return self.game_state.board
 
     def generate_rook(self, row, col, possible_moves):
-        """Append rook moves from the supplied square."""
+        """
+        Append rook moves from the supplied square.
+        """
         self._generate(row, col, ORTHOGONAL, possible_moves, self.board.DIMENSION - 1)
 
     def generate_bishop(self, row, col, possible_moves):
-        """Append bishop moves from the supplied square."""
+        """
+        Append bishop moves from the supplied square.
+        """
         self._generate(row, col, DIAGONAL, possible_moves, self.board.DIMENSION - 1)
 
     def generate_queen(self, row, col, possible_moves):
-        """Append queen moves from the supplied square."""
+        """
+        Append queen moves from the supplied square.
+        """
         self._generate(row, col, ORTHOGONAL + DIAGONAL, possible_moves, self.board.DIMENSION - 1)
 
     def _generate(self, row, col, directions, possible_moves, max_steps):
-        """Append unobstructed directional moves up to ``max_steps``."""
+        """
+        Append unobstructed directional moves up to `max_steps`.
+        """
         enemy = enemy_color(turn_color(self.game_state.white_to_move))
 
         for d_row, d_col in directions:

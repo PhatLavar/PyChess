@@ -15,7 +15,9 @@ from chess_ui.renderers.highlight_renderer import HighlightRenderer
 
 
 class GameRenderer:
-    """Render the board, pieces, interactions, animations, and modal screens."""
+    """
+    Render the board, pieces, interactions, animations, and modal screens.
+    """
 
     def __init__(
         self,
@@ -24,7 +26,9 @@ class GameRenderer:
         move_animation,
         game_over_ui,
     ):
-        """Bind the renderer to one match and its presentation components."""
+        """
+        Bind the renderer to one match and its presentation components.
+        """
         self.game_state = game_state
         self.input_handler = input_handler
         self.move_animation = move_animation
@@ -32,10 +36,14 @@ class GameRenderer:
         self.highlight_renderer = HighlightRenderer(game_state, input_handler)
         self.piece_images = {}
 
-    # Assets
+    ####################################################################################
+    # ----------------------------------- ASSETS ---------------------------------------
+    ####################################################################################
 
     def load_piece_images(self):
-        """Load and scale every piece image; return the resulting image map."""
+        """
+        Load and scale every piece image; return the resulting image map.
+        """
         image_directory = Path(PIECE_IMAGE_DIRECTORY)
 
         for piece in Piece.PIECES:
@@ -47,10 +55,14 @@ class GameRenderer:
 
         return self.piece_images
 
-    # Frame rendering
+    ####################################################################################
+    # ------------------------------- FRAME RENDERING ----------------------------------
+    ####################################################################################
 
     def draw(self, screen):
-        """Draw one complete application frame in layer order."""
+        """
+        Draw one complete application frame in layer order.
+        """
         self._draw_board(screen)
         self.highlight_renderer.draw(screen)
         self._draw_pieces(screen)
@@ -62,7 +74,9 @@ class GameRenderer:
         self.game_over_ui.draw(screen)
 
     def _draw_board(self, screen):
-        """Draw the alternating board squares."""
+        """
+        Draw the alternating board squares.
+        """
         colors = (pg.Color(BOARD_LIGHT_COLOR), pg.Color(BOARD_DARK_COLOR))
 
         for row in range(BOARD_DIMENSION):
@@ -76,7 +90,9 @@ class GameRenderer:
                 pg.draw.rect(screen, colors[(row + col) % 2], square_rect)
 
     def _draw_pieces(self, screen):
-        """Draw stationary pieces, skipping those owned by the animator."""
+        """
+        Draw stationary pieces, skipping those owned by the animator.
+        """
         for row in range(BOARD_DIMENSION):
             for col in range(BOARD_DIMENSION):
                 square = row, col

@@ -3,10 +3,14 @@ from chess_engine.utilities import EMP, piece_color
 
 
 class PawnPromotionExecutor:
-    """Store pending promotion state and apply the chosen piece."""
+    """
+    Store pending promotion state and apply the chosen piece.
+    """
 
     def __init__(self, game_state, move_logger):
-        """Bind match state and move history."""
+        """
+        Bind match state and move history.
+        """
         self.game_state = game_state
         self.move_logger = move_logger
         self.state_updater = StateUpdater(game_state)
@@ -14,12 +18,16 @@ class PawnPromotionExecutor:
 
     @property
     def board(self):
-        """Return the active engine board."""
+        """
+        Return the active engine board.
+        """
         return self.game_state.board
 
 
     def set_pending_state(self, moved_piece, moved_square, target_piece, target_square):
-        """Pause a pawn move until the application supplies a piece choice."""
+        """
+        Pause a pawn move until the application supplies a piece choice.
+        """
         self.game_state.promotion_pending = True
         self.game_state.promotion_square = target_square
         self.game_state.promotion_moved_square = moved_square
@@ -29,7 +37,9 @@ class PawnPromotionExecutor:
 
 
     def execute(self, chosen_type):
-        """Complete and record a pending promotion."""
+        """
+        Complete and record a pending promotion.
+        """
         moved_piece = self.game_state.promotion_moved_piece
         moved_square = self.game_state.promotion_moved_square
         target_piece = self.game_state.promotion_target_piece
@@ -73,7 +83,9 @@ class PawnPromotionExecutor:
             self.move_logger.record_end_match(match_result)
 
     def _clear_promotion_state(self):
-        """Remove every transient promotion field after completion or undo."""
+        """
+        Remove every transient promotion field after completion or undo.
+        """
         self.game_state.promotion_pending = False
         self.game_state.promotion_square = None
         self.game_state.promotion_moved_square = None

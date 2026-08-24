@@ -1,5 +1,7 @@
 class Piece:
-    """Namespace containing every supported internal piece code."""
+    """
+    Namespace containing every supported internal piece code.
+    """
 
     PIECES = [
         'bR', 'bN', 'bB', 'bQ', 'bK', 'bP',

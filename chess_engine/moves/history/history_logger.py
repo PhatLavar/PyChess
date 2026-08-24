@@ -2,10 +2,14 @@ from chess_engine.utilities import EMP
 
 
 class HistoryLogger:
-    """Append structured records required for reliable undo operations."""
+    """
+    Append structured records required for reliable undo operations.
+    """
 
     def __init__(self, notation):
-        """Write into the supplied shared structured-history list."""
+        """
+        Write into the supplied shared structured-history list.
+        """
         self.notation = notation
 
     def save_move(
@@ -16,7 +20,9 @@ class HistoryLogger:
         target_square,
         is_capture
     ):
-        """Save an ordinary move or capture record."""
+        """
+        Save an ordinary move or capture record.
+        """
         self.notation.append({
             'moved_piece': moved_piece,
             'moved_square': moved_square,
@@ -34,7 +40,9 @@ class HistoryLogger:
         is_capture,
         promotion_piece
     ):
-        """Save a promotion record including the chosen piece."""
+        """
+        Save a promotion record including the chosen piece.
+        """
         self.notation.append({
             'moved_piece': moved_piece,
             'moved_square': moved_square,
@@ -52,7 +60,9 @@ class HistoryLogger:
         target_square,
         captured_square
     ):
-        """Save en passant data including the removed pawn square."""
+        """
+        Save en passant data including the removed pawn square.
+        """
         self.notation.append({
             'moved_piece': moved_piece,
             'moved_square': moved_square,
@@ -73,7 +83,9 @@ class HistoryLogger:
         rook_target_square,
         side
     ):
-        """Save castling data for both the king and rook."""
+        """
+        Save castling data for both the king and rook.
+        """
         self.notation.append({
             'moved_piece': moved_piece,
             'moved_square': moved_square,

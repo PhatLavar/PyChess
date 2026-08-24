@@ -2,19 +2,27 @@ from chess_engine.utilities import EMP
 
 
 class MoveSimulation:
-    """Temporarily apply moves so king safety can be evaluated."""
+    """
+    Temporarily apply moves so king safety can be evaluated.
+    """
 
     def __init__(self, game_state):
-        """Bind the active match state."""
+        """
+        Bind the active match state.
+        """
         self.game_state = game_state
 
     @property
     def board(self):
-        """Return the active engine board."""
+        """
+        Return the active engine board.
+        """
         return self.game_state.board
 
     def simulate(self, move):
-        """Apply a move and return all data required to restore the position."""
+        """
+        Apply a move and return all data required to restore the position.
+        """
         moved_square, target_square = move
         moved_piece = self.board.get_piece(moved_square)
         target_piece = self.board.get_piece(target_square)
@@ -52,7 +60,9 @@ class MoveSimulation:
         return state
 
     def restore(self, state):
-        """Restore a position snapshot returned by ``simulate``."""
+        """
+        Restore a position snapshot returned by `simulate`.
+        """
         self.board.set_piece(state['moved_square'], state['moved_piece'])
         self.board.set_piece(state['target_square'], state['target_piece'])
 
@@ -66,7 +76,9 @@ class MoveSimulation:
         self.game_state.black_king_position = state['black_king_position']
 
     def _update_king_position(self, piece, square):
-        """Update a cached king square when the simulated piece is a king."""
+        """
+        Update a cached king square when the simulated piece is a king.
+        """
         if piece == 'wK':
             self.game_state.white_king_position = square
         elif piece == 'bK':

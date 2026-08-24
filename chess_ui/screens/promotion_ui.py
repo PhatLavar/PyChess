@@ -20,7 +20,9 @@ class PromotionUI:
         """Bind the screen to the engine state containing promotion details."""
         self.game_state = game_state
 
-    # Rendering
+    ####################################################################################
+    # --------------------------------- RENDERING --------------------------------------
+    ####################################################################################
 
     def draw(self, screen, piece_images):
         """Draw the promotion modal with light-gray hover feedback."""
@@ -51,13 +53,16 @@ class PromotionUI:
             if piece in piece_images:
                 screen.blit(piece_images[piece], button_rect)
 
-    # Interaction
+    ####################################################################################
+    # -------------------------------- INTERACTION -------------------------------------
+    ####################################################################################
 
     def get_choice(self, mouse_location):
-        """Return ``Q``, ``R``, ``B``, or ``N`` when a choice is clicked.
+        """
+        Return `Q`, `R`, `B`, or `N` when a choice is clicked.
 
         Returns:
-            The selected promotion piece type, or ``None`` when the click is
+            The selected promotion piece type, or None when the click is
             outside every promotion button.
         """
         for piece_type, button_rect in self.choice_rects():
@@ -66,7 +71,7 @@ class PromotionUI:
         return None
 
     def choice_rects(self):
-        """Return ordered ``(piece_type, rectangle)`` promotion choices."""
+        """Return ordered (piece_type, rectangle) promotion choices."""
         gap = int(SQUARE_SIZE * PROMOTION_BUTTON_GAP_RATIO)
         choices_width = len(PROMOTION_PIECES) * SQUARE_SIZE
         gaps_width = (len(PROMOTION_PIECES) - 1) * gap

@@ -2,29 +2,42 @@ from chess_engine.utilities import CASTLING_ROOK_START, EMP, piece_color
 
 
 class StateUpdater:
-    """Centralize non-board state mutations shared by move executors."""
+    """
+    Centralize non-board state mutations shared by move executors.
+    """
 
     def __init__(self, game_state):
-        """Bind the active match state."""
+        """
+        Bind the active match state.
+        """
         self.game_state = game_state
 
 
     def update_king_position(self, piece, square):
-        """Update the cached square when ``piece`` is a king."""
+        """
+        Update the cached square when `piece` is a king.
+        """
         if piece == 'wK':
             self.game_state.white_king_position = square
         elif piece == 'bK':
             self.game_state.black_king_position = square
 
+    ####################################################################################
+    # ------------------------------ EN PASSANT STATE ----------------------------------
+    ####################################################################################
 
     def clear_en_passant_state(self):
-        """Remove the transient en passant target and double-pawn record."""
+        """
+        Remove the transient en passant target and double-pawn record.
+        """
         self.game_state.last_double_pawn_move = None
         self.game_state.en_passant_target = None
 
 
     def update_en_passant_state(self, moved_piece, moved_square, target_square):
-        """Create an en passant target after a two-square pawn move."""
+        """
+        Create an en passant target after a two-square pawn move.
+        """
         self.clear_en_passant_state()
 
         is_pawn = moved_piece[1] == 'P'
@@ -44,9 +57,14 @@ class StateUpdater:
             moved_square[1]
         )
 
+    ####################################################################################
+    # ------------------------------- CASTLING STATE -----------------------------------
+    ####################################################################################
 
     def save_castling_rights_state(self):
-        """Push an independent castling-rights snapshot for undo."""
+        """
+        Push an independent castling-rights snapshot for undo.
+        """
         rights_copy = {
             'w': self.game_state.castling_rights['w'].copy(),
             'b': self.game_state.castling_rights['b'].copy(),
@@ -55,7 +73,9 @@ class StateUpdater:
 
 
     def restore_castling_rights_after_undo(self):
-        """Restore and remove the latest castling-rights snapshot."""
+        """
+        Restore and remove the latest castling-rights snapshot.
+        """
         if not self.game_state.castling_rights_log:
             return
 
@@ -69,7 +89,9 @@ class StateUpdater:
         target_piece,
         target_square
     ):
-        """Revoke rights after moving a king/rook or capturing a home rook."""
+        """
+        Revoke rights after moving a king/rook or capturing a home rook.
+        """
         color = piece_color(moved_piece)
 
         if moved_piece[1] == 'K':
@@ -85,7 +107,9 @@ class StateUpdater:
 
 
     def _remove_rook_castling_right(self, color, rook_square):
-        """Revoke the side associated with one original rook square."""
+        """
+        Revoke the side associated with one original rook square.
+        """
         if rook_square == CASTLING_ROOK_START[color]['king_side']:
             self.game_state.castling_rights[color]['king_side'] = False
         elif rook_square == CASTLING_ROOK_START[color]['queen_side']:

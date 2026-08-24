@@ -7,20 +7,28 @@ from chess_engine.utilities import (
 
 
 class CastlingValidator:
-    """Validate castling rights, occupancy, check, and attacked paths."""
+    """
+    Validate castling rights, occupancy, check, and attacked paths.
+    """
 
     def __init__(self, game_state, attack_validator):
-        """Bind match state and the shared attack evaluator."""
+        """
+        Bind match state and the shared attack evaluator.
+        """
         self.game_state = game_state
         self.attack_validator = attack_validator
 
     @property
     def board(self):
-        """Return the active engine board."""
+        """
+        Return the active engine board.
+        """
         return self.game_state.board
 
     def is_castling_move(self, moved_piece, moved_square, target_square):
-        """Return whether a move has the two-file king castling shape."""
+        """
+        Return whether a move has the two-file king castling shape.
+        """
         return (
             moved_piece != EMP
             and moved_piece[1] == 'K'
@@ -28,7 +36,9 @@ class CastlingValidator:
         )
 
     def can_castle(self, color, side):
-        """Return whether ``color`` may castle on the requested side."""
+        """
+        Return whether `color` may castle on the requested side.
+        """
         rights = self.game_state.castling_rights[color]
 
         if not rights[side]:
@@ -58,14 +68,18 @@ class CastlingValidator:
         return True
 
     def _in_check(self, color):
-        """Return whether the king on its starting square is attacked."""
+        """
+        Return whether the king on its starting square is attacked.
+        """
         king_position = CASTLING_KING_START[color]
         enemy = enemy_color(color)
 
         return self.attack_validator.square_under_attack(king_position, enemy)
 
     def _castling_path_empty(self, color, side):
-        """Return whether every required square between king and rook is empty."""
+        """
+        Return whether every required square between king and rook is empty.
+        """
         row = 7 if color == 'w' else 0
 
         if side == 'king_side':
@@ -76,7 +90,9 @@ class CastlingValidator:
         return all(self.board.get_piece(square) == EMP for square in squares)
 
     def _castling_path_under_attack(self, color, side):
-        """Return whether the king would cross or enter an attacked square."""
+        """
+        Return whether the king would cross or enter an attacked square.
+        """
         row = 7 if color == 'w' else 0
         enemy = enemy_color(color)
 

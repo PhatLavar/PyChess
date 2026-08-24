@@ -1,5 +1,4 @@
 import math
-
 import pygame as pg
 
 from chess_ui.config import (
@@ -44,14 +43,17 @@ from chess_ui.config import (
 
 
 class GameOverUI:
-    """Render terminal-match animation, results, and gamemode selection."""
+    """
+    Render terminal-match animation, results, and gamemode selection.
+    """
 
     RESULT_VIEW = 'result'
     GAMEMODE_VIEW = 'gamemode'
     GAMEMODE_OPTIONS = ('Gamemode 1', 'Gamemode 2', 'Gamemode 3')
 
     def __init__(self, game_state, current_gamemode):
-        """Create inactive terminal UI for a match.
+        """
+        Create inactive terminal UI for a match.
 
         Args:
             game_state: Engine state whose result will be displayed.
@@ -71,24 +73,34 @@ class GameOverUI:
         self._create_result_layout()
         self._create_gamemode_layout()
 
-    # Lifecycle
+    ####################################################################################
+    # --------------------------------- LIFE CYCLE -------------------------------------
+    ####################################################################################
 
     def activate(self):
-        """Start the terminal flash timer and return its Pygame timestamp."""
+        """
+        Start the terminal flash timer and return its Pygame timestamp.
+        """
         if self.started_at is None:
             self.started_at = pg.time.get_ticks()
         return self.started_at
 
     def get_elapsed_time(self):
-        """Return milliseconds since activation, or zero before activation."""
+        """
+        Return milliseconds since activation, or zero before activation.
+        """
         if self.started_at is None:
             return 0
         return pg.time.get_ticks() - self.started_at
 
-    # Layout
+    ####################################################################################
+    # ---------------------------------- LAYOUTS ---------------------------------------
+    ####################################################################################
 
     def _create_result_layout(self):
-        """Calculate one centered group for result text and action buttons."""
+        """
+        Calculate one centered group for result text and action buttons.
+        """
         center_x = BOARD_PIXEL_SIZE // 2
         center_y = BOARD_PIXEL_SIZE // 2
         result_height = self.result_font.get_linesize()
@@ -118,7 +130,9 @@ class GameOverUI:
         )
 
     def _create_gamemode_layout(self):
-        """Calculate centered mode choices and 30/70 action buttons."""
+        """
+        Calculate centered mode choices and 30/70 action buttons.
+        """
         center_x = BOARD_PIXEL_SIZE // 2
         title_height = self.title_font.get_linesize()
         modes_height = GAMEMODE_BUTTON_HEIGHT * len(self.GAMEMODE_OPTIONS)
@@ -168,10 +182,14 @@ class GameOverUI:
             GAMEMODE_ACTION_HEIGHT,
         )
 
-    # Rendering
+    ####################################################################################
+    # --------------------------------- RENDERING --------------------------------------
+    ####################################################################################
 
     def draw(self, screen):
-        """Draw the active terminal phase; draw nothing before game over."""
+        """
+        Draw the active terminal phase; draw nothing before game over.
+        """
         if not self.game_state.game_over:
             return
 
@@ -186,18 +204,24 @@ class GameOverUI:
             self._draw_result_screen(screen)
 
     def _draw_flashing_phase(self, screen, elapsed):
-        """Draw synchronized terminal-square and status-text pulses."""
+        """
+        Draw synchronized terminal-square and status-text pulses.
+        """
         pulse = self._get_flash_pulse(elapsed)
         self._draw_flashing_king_square(screen, pulse)
         self._draw_status_text(screen, pulse)
 
     def _get_flash_pulse(self, elapsed):
-        """Return a smooth repeating value from zero to one."""
+        """
+        Return a smooth repeating value from zero to one.
+        """
         phase = (elapsed % ENDGAME_FLASH_CYCLE_MS) / ENDGAME_FLASH_CYCLE_MS
         return (math.sin(phase * math.tau - math.pi / 2) + 1) / 2
 
     def _draw_flashing_king_square(self, screen, pulse):
-        """Pulse a red overlay on the terminal side-to-move king square."""
+        """
+        Pulse a red overlay on the terminal side-to-move king square.
+        """
         row, col = self.game_state.get_terminal_king_square()
         max_alpha = int(FULL_ALPHA * ENDGAME_SQUARE_MAX_OPACITY)
         overlay = pg.Surface((SQUARE_SIZE, SQUARE_SIZE), pg.SRCALPHA)
@@ -205,7 +229,9 @@ class GameOverUI:
         screen.blit(overlay, (col * SQUARE_SIZE, row * SQUARE_SIZE))
 
     def _draw_status_text(self, screen, pulse):
-        """Pulse CHECKMATE or STALEMATE text in the board center."""
+        """
+        Pulse CHECKMATE or STALEMATE text in the board center.
+        """
         message = (
             'CHECKMATE!'
             if self.game_state.game_result == 'checkmate'
@@ -232,7 +258,9 @@ class GameOverUI:
         screen.blit(text, text_rect)
 
     def _draw_result_screen(self, screen):
-        """Draw the match result and result-screen actions."""
+        """
+        Draw the match result and result-screen actions.
+        """
         self._draw_dark_overlay(screen)
         result = self.result_font.render(
             self._get_result_text(),
@@ -247,9 +275,11 @@ class GameOverUI:
         self._draw_button(screen, self.change_mode_button, 'Change Gamemode')
 
     def _draw_gamemode_screen(self, screen):
-        """Draw pending gamemode choices and Back/Change actions."""
+        """
+        Draw pending gamemode choices and Back/Change actions.
+        """
         self._draw_dark_overlay(screen)
-        title = self.title_font.render('Gamemode', True, pg.Color(TEXT_COLOR))
+        title = self.title_font.render('Select Gamemode', True, pg.Color(TEXT_COLOR))
         title_rect = title.get_rect(
             center=(BOARD_PIXEL_SIZE // 2, self.gamemode_title_center_y)
         )
@@ -263,11 +293,13 @@ class GameOverUI:
                 selected=label == self.pending_gamemode,
             )
 
-        self._draw_button(screen, self.back_button, '←')
-        self._draw_button(screen, self.confirm_change_button, 'Change')
+        self._draw_button(screen, self.back_button, 'Back')
+        self._draw_button(screen, self.confirm_change_button, 'Select')
 
     def _draw_dark_overlay(self, screen):
-        """Darken the finished board behind the active modal."""
+        """
+        Darken the finished board behind the active modal.
+        """
         overlay = pg.Surface(
             (BOARD_PIXEL_SIZE, BOARD_PIXEL_SIZE),
             pg.SRCALPHA,
@@ -276,13 +308,17 @@ class GameOverUI:
         screen.blit(overlay, (0, 0))
 
     def _get_result_text(self):
-        """Return ``DRAW!`` or the engine's winning-color message."""
+        """
+        Return `DRAW!` or the engine's winning-color message.
+        """
         if self.game_state.game_result == 'stalemate':
             return 'DRAW!'
         return self.game_state.winner
 
     def _draw_button(self, screen, button_rect, label, selected=False):
-        """Draw one button with hover and pending-selection feedback."""
+        """
+        Draw one button with hover and pending-selection feedback.
+        """
         is_hovered = button_rect.collidepoint(pg.mouse.get_pos())
 
         if selected:
@@ -311,15 +347,18 @@ class GameOverUI:
         text = self.button_font.render(label, True, pg.Color(TEXT_COLOR))
         screen.blit(text, text.get_rect(center=button_rect.center))
 
-    # Interaction
+    ####################################################################################
+    # -------------------------------- INTERACTION -------------------------------------
+    ####################################################################################
 
     def handle_click(self, mouse_position):
-        """Handle a terminal-screen click.
+        """
+        Handle a terminal-screen click.
 
         Returns:
-            ``'rematch'`` for the Rematch button,
-            ``('change_mode', selected_mode)`` after confirmation,
-            or ``None`` when no application action is required.
+            'rematch' for the Rematch button,
+            ('change_mode', selected_mode) after confirmation,
+            or None when no application action is required.
         """
         if not self.game_state.game_over:
             return None
@@ -340,7 +379,9 @@ class GameOverUI:
         return None
 
     def _handle_gamemode_click(self, mouse_position):
-        """Update, discard, or confirm the pending gamemode selection."""
+        """
+        Update, discard, or confirm the pending gamemode selection.
+        """
         for label, button_rect in self.gamemode_buttons:
             if button_rect.collidepoint(mouse_position):
                 self.pending_gamemode = label

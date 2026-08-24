@@ -2,17 +2,22 @@ import pygame as pg
 
 
 class EventHandler:
-    """Route Pygame events to application, UI, or chess input handlers."""
+    """
+    Route Pygame events to application, UI, or chess input handlers.
+    """
 
     def __init__(self, chess_game):
-        """Bind event routing to the running application."""
+        """
+        Bind event routing to the running application.
+        """
         self.chess_game = chess_game
 
     def process_events(self):
-        """Process one frame of events and report whether to keep running.
+        """
+        Process one frame of events and report whether to keep running.
 
         Returns:
-            ``False`` after a window-close event; otherwise ``True``.
+            'False' after a window-close event; otherwise 'True'.
         """
         for event in pg.event.get():
             if event.type == pg.QUIT:
@@ -30,7 +35,9 @@ class EventHandler:
         return True
 
     def _handle_mouse_click(self, mouse_position):
-        """Route clicks to the active modal or the chessboard."""
+        """
+        Route clicks to the active modal or the chessboard.
+        """
         game_state = self.chess_game.game_state
 
         if game_state.game_over:
@@ -46,7 +53,9 @@ class EventHandler:
             self.chess_game.game_over_ui.activate()
 
     def _handle_game_over_action(self, action):
-        """Apply a game-over UI action when one was returned."""
+        """
+        Apply a game-over UI action when one was returned.
+        """
         if action == 'rematch':
             self.chess_game.rematch()
             return

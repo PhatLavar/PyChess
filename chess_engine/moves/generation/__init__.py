@@ -1,4 +1,6 @@
-"""Legal and pseudo-legal move generation."""
+"""
+Legal and pseudo-legal move generation.
+"""
 
 from chess_engine.moves.generation.move_generator import MoveGenerator
 

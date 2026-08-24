@@ -4,7 +4,8 @@ from chess_engine.rules import MoveValidator
 
 
 class GameState:
-    """Store all rules-related state for one chess match.
+    """
+    Store all rules-related state for one chess match.
 
     This class intentionally has no Pygame, rendering, animation, or input
     dependencies, so the same engine can later be used by an AI player.
@@ -14,7 +15,9 @@ class GameState:
     BLACK_KING_START = (0, 4)
 
     def __init__(self):
-        """Create a fresh match with White to move."""
+        """
+        Create a fresh match with White to move.
+        """
         self.white_to_move = True
         self.board = Board()
 
@@ -44,16 +47,18 @@ class GameState:
         self.move_validator = MoveValidator(self)
         self.move = Move(self)
 
-    # Match state
+    ####################################################################################
+    # --------------------------------- MATCH STATE ------------------------------------
+    ####################################################################################
 
     def finish_turn(self):
-        """Switch turns and evaluate the resulting position.
+        """
+        Switch turns and evaluate the resulting position.
 
         Returns:
-            A ``(move_status, match_result)`` tuple. ``move_status`` is
-            ``CHECK``, ``CHECKMATE``, ``STALEMATE``, or ``None``.
-            ``match_result`` is ``WHITE WINS!``, ``BLACK WINS!``, ``DRAW!``,
-            or ``None`` when the match continues.
+            A (move_status, match_result) tuple. 
+            `move_status` is CHECK, CHECKMATE, STALEMATE, or None.
+            `match_result` is WHITE WINS!, BLACK WINS!, DRAW!, or None
         """
         self.white_to_move = not self.white_to_move
 
@@ -72,13 +77,17 @@ class GameState:
         return None, None
 
     def get_terminal_king_square(self):
-        """Return the side-to-move king square for the endgame animation."""
+        """
+        Return the side-to-move king square for the endgame animation.
+        """
         if self.white_to_move:
             return self.white_king_position
         return self.black_king_position
 
     def _set_game_over(self, result, winner):
-        """Lock the match and store its terminal result."""
+        """
+        Lock the match and store its terminal result.
+        """
         self.game_over = True
         self.game_result = result
         self.winner = winner

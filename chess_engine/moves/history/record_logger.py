@@ -2,12 +2,20 @@ from chess_engine.utilities import EMP
 
 
 class RecordLogger:
-    """Build and print human-readable move-log entries."""
+    """
+    Build and print human-readable move-log entries.
+    """
 
     def __init__(self, move_log, notation_converter):
-        """Write into the supplied log using the shared square converter."""
+        """
+        Write into the supplied log using the shared square converter.
+        """
         self.move_log = move_log
         self.notation_converter = notation_converter
+
+    ####################################################################################
+    # ------------------------------- NORMAL MOVE LOG ----------------------------------
+    ####################################################################################
 
     def record_move(
         self,
@@ -17,7 +25,9 @@ class RecordLogger:
         target_square,
         move_type='MOVE'
     ):
-        """Append one classified ordinary, capture, check, or undo entry."""
+        """
+        Append one classified ordinary, capture, check, or undo entry.
+        """
         if move_type == 'MOVE' and target_piece != EMP:
             move_type = 'CAPTURE'
 
@@ -36,6 +46,10 @@ class RecordLogger:
             move_details += f"; {target_piece} {to_notation}"
 
         self._append_log(f"[{move_type}] {move_details}")
+
+    ####################################################################################
+    # ----------------------------- PROMOTION MOVE LOG ---------------------------------
+    ####################################################################################
 
     def record_promotion_move(
         self,
@@ -57,6 +71,10 @@ class RecordLogger:
         move_details += f"; {promotion_piece} {to_notation}"
         self._append_log(f"[{move_type}] {move_details}")
 
+    ####################################################################################
+    # ---------------------------- EN PASSANT MOVE LOG ---------------------------------
+    ####################################################################################
+
     def record_en_passant_undo(
         self,
         moved_piece,
@@ -76,6 +94,10 @@ class RecordLogger:
         )
 
         self._append_log(move_log)
+
+    ####################################################################################
+    # ----------------------------- CASTLING MOVE LOG ----------------------------------
+    ####################################################################################
 
     def record_castling_move(
         self,
@@ -110,10 +132,18 @@ class RecordLogger:
 
         self._append_log(move_log)
 
+    ####################################################################################
+    # ----------------------------- ENDMATCH MOVE LOG ----------------------------------
+    ####################################################################################
+
     def record_end_match(self, result):
         """Append the final ``ENDMATCH`` result entry."""
         display_result = result
         self._append_log(f"[ENDMATCH] {display_result}")
+
+    ####################################################################################
+    # ------------------------------ MOVE LOG HELPERS ----------------------------------
+    ####################################################################################
 
     def _append_log(self, move_log):
         """Store and print one completed log string."""

@@ -3,10 +3,14 @@ from chess_engine.utilities import EMP
 
 
 class EnPassantExecutor:
-    """Apply and record en passant captures."""
+    """
+    Apply and record en passant captures.
+    """
 
     def __init__(self, game_state, move_logger):
-        """Bind match state and move history."""
+        """
+        Bind match state and move history.
+        """
         self.game_state = game_state
         self.move_logger = move_logger
         self.state_updater = StateUpdater(game_state)
@@ -14,12 +18,16 @@ class EnPassantExecutor:
 
     @property
     def board(self):
-        """Return the active engine board."""
+        """
+        Return the active engine board.
+        """
         return self.game_state.board
 
 
     def execute(self, moved_piece, moved_square, target_square):
-        """Move the pawn, remove the adjacent pawn, and record the turn."""
+        """
+        Move the pawn, remove the adjacent pawn, and record the turn.
+        """
         self.state_updater.save_castling_rights_state()
 
         captured_square = self.game_state.last_double_pawn_move['to_square']

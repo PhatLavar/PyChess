@@ -1,4 +1,6 @@
-"""Shared chess constants and small pure helper functions."""
+"""
+Shared chess constants and small pure helper functions.
+"""
 
 from chess_engine.utilities.color_helpers import enemy_color, turn_color
 from chess_engine.utilities.constants import (

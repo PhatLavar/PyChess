@@ -3,21 +3,29 @@ from chess_engine.utilities import EMP
 
 
 class UndoExecutor:
-    """Restore the engine position preceding the latest completed move."""
+    """
+    Restore the engine position preceding the latest completed move.
+    """
 
     def __init__(self, game_state, move_logger):
-        """Bind match state and move history."""
+        """
+        Bind match state and move history.
+        """
         self.game_state = game_state
         self.move_logger = move_logger
         self.state_updater = StateUpdater(game_state)
 
     @property
     def board(self):
-        """Return the active engine board."""
+        """
+        Return the active engine board.
+        """
         return self.game_state.board
 
     def execute(self):
-        """Undo pending promotion or latest move; return whether state changed."""
+        """
+        Undo pending promotion or latest move; return whether state changed.
+        """
         if self.game_state.promotion_pending:
             self._clear_promotion_state()
             return True
@@ -75,7 +83,9 @@ class UndoExecutor:
         target_prev_piece,
         last_move
     ):
-        """Restore both pawns from an en passant history record."""
+        """
+        Restore both pawns from an en passant history record.
+        """
         self.board.set_piece(moved_square, moved_piece)
         self.board.set_piece(target_square, EMP)
         self.board.set_piece(
@@ -84,7 +94,9 @@ class UndoExecutor:
         )
 
     def _undo_castling(self, moved_square, target_square, moved_piece, last_move):
-        """Restore king and rook to their pre-castling squares."""
+        """
+        Restore king and rook to their pre-castling squares.
+        """
         self.board.set_piece(moved_square, moved_piece)
         self.board.set_piece(target_square, EMP)
         self.board.set_piece(last_move['rook_square'], last_move['rook_piece'])
@@ -97,7 +109,9 @@ class UndoExecutor:
         moved_piece,
         target_prev_piece
     ):
-        """Restore an ordinary move, capture, or promotion."""
+        """
+        Restore an ordinary move, capture, or promotion.
+        """
         self.board.set_piece(moved_square, moved_piece)
         self.board.set_piece(target_square, target_prev_piece)
 
@@ -109,7 +123,9 @@ class UndoExecutor:
         target_square,
         target_prev_piece
     ):
-        """Append a human-readable undo entry matching the move type."""
+        """
+        Append a human-readable undo entry matching the move type.
+        """
         if last_move.get('en_passant'):
             self.move_logger.record_en_passant_undo(
                 moved_piece,
@@ -135,7 +151,9 @@ class UndoExecutor:
             )
 
     def _restore_en_passant_state_after_undo(self):
-        """Reconstruct en passant availability from the new latest move."""
+        """
+        Reconstruct en passant availability from the new latest move.
+        """
         self.state_updater.clear_en_passant_state()
 
         if len(self.move_logger.notation) == 0:
@@ -164,7 +182,9 @@ class UndoExecutor:
         )
 
     def _clear_promotion_state(self):
-        """Cancel every transient pending-promotion field."""
+        """
+        Cancel every transient pending-promotion field.
+        """
         self.game_state.promotion_pending = False
         self.game_state.promotion_square = None
         self.game_state.promotion_moved_square = None

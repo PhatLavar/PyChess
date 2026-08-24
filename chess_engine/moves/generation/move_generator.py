@@ -7,10 +7,14 @@ from chess_engine.utilities import piece_color, piece_type, turn_color
 
 
 class MoveGenerator:
-    """Generate pseudo-legal moves and filter out moves that expose the king."""
+    """
+    Generate pseudo-legal moves and filter out moves that expose the king.
+    """
 
     def __init__(self, game_state):
-        """Create piece generators and a reversible simulation helper."""
+        """
+        Create piece generators and a reversible simulation helper.
+        """
         self.game_state = game_state
         self.simulation = MoveSimulation(game_state)
         self.sliding_generator = SlidingMoveGenerator(game_state)
@@ -20,11 +24,15 @@ class MoveGenerator:
 
     @property
     def board(self):
-        """Return the active engine board."""
+        """
+        Return the active engine board.
+        """
         return self.game_state.board
 
     def get_valid_moves(self):
-        """Return every legal ``(origin, target)`` move for side to move."""
+        """
+        Return every legal (origin, target) move for side to move.
+        """
         valid_moves = []
 
         for move in self.get_all_possible_moves():
@@ -38,7 +46,9 @@ class MoveGenerator:
         return valid_moves
 
     def get_all_possible_moves(self):
-        """Return pseudo-legal moves before own-king safety filtering."""
+        """
+        Return pseudo-legal moves before own-king safety filtering.
+        """
         possible_moves = []
         color = turn_color(self.game_state.white_to_move)
 
@@ -52,7 +62,9 @@ class MoveGenerator:
         return possible_moves
 
     def _generate_piece_moves(self, row, col, piece, possible_moves):
-        """Append pseudo-legal moves for one piece to the supplied list."""
+        """
+        Append pseudo-legal moves for one piece to the supplied list.
+        """
         move_type = piece_type(piece)
 
         if move_type == 'P':

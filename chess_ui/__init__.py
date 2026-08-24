@@ -1,1 +1,3 @@
-"""Pygame rendering, screens, components, and animations."""
+"""
+Pygame rendering, screens, components, and animations.
+"""
