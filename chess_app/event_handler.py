@@ -24,6 +24,11 @@ class EventHandler:
                 self.chess_game.terminate_match()
                 return False
 
+            if self.chess_game.active_screen == self.chess_game.START_SCREEN:
+                if event.type == pg.MOUSEBUTTONDOWN:
+                    self._handle_start_menu_click(event.pos)
+                continue
+
             if event.type == pg.MOUSEMOTION:
                 self.chess_game.input_handler.handle_mouse_motion(event.pos)
 
@@ -52,6 +57,21 @@ class EventHandler:
 
         if state_changed and game_state.game_over:
             self.chess_game.game_over_ui.activate()
+
+    def _handle_start_menu_click(self, mouse_position):
+        """
+        Apply an action returned by the start menu.
+        """
+        action = self.chess_game.start_menu_ui.handle_click(
+            mouse_position
+        )
+
+        if action == 'player':
+            self.chess_game.start_player_game()
+            return
+
+        if isinstance(action, tuple) and action[0] == 'bot':
+            self.chess_game.start_bot_game(action[1])
 
     def _handle_game_over_action(self, action):
         """

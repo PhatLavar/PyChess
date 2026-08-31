@@ -13,7 +13,7 @@ from chess_engine import GameState
 from chess_ui.animations import MoveAnimation
 from chess_ui.config import BOARD_PIXEL_SIZE
 from chess_ui.renderers import GameRenderer
-from chess_ui.screens import GameOverUI
+from chess_ui.screens import GameOverUI, StartMenuUI
 
 
 class ChessGame:
@@ -21,7 +21,10 @@ class ChessGame:
     Coordinate the Pygame lifecycle, chess engine, and user interface.
     """
 
-    DEFAULT_GAMEMODE = 'Gamemode 1'
+    PLAYER_MODE = 'player'
+    BOT_MODE = 'bot'
+    START_SCREEN = 'start'
+    GAME_SCREEN = 'game'
     WINDOW_TITLE = 'PyChess'
 
     def __init__(self):
@@ -35,12 +38,22 @@ class ChessGame:
             (BOARD_PIXEL_SIZE, BOARD_PIXEL_SIZE)
         )
         self.clock = pg.time.Clock()
-        self.gamemode = self.DEFAULT_GAMEMODE
+
+        self.active_screen = self.START_SCREEN
+        self.gamemode = None
+        self.bot_difficulty = None
+
+        self.start_menu_ui = StartMenuUI()
         self.event_handler = EventHandler(self)
         self.match_history = MatchHistory()
         self.match_history.ensure_directory()
 
-        self._create_match()
+        self.game_state = None
+        self.input_handler = None
+        self.game_over_ui = None
+        self.renderer = None
+        self.move_animation = None
+        self.match_history_saved = False
 
     ####################################################################################
     # ---------------------------- APPLICATION LIFECYCLLE ------------------------------
@@ -62,7 +75,27 @@ class ChessGame:
     ####################################################################################
     # ------------------------------- MATCH MANAGEMENT ---------------------------------
     ####################################################################################
+    
+    def start_player_game(self):
+        """
+        Start the existing local player-versus-player game.
+        """
+        self.gamemode = self.PLAYER_MODE
+        self.bot_difficulty = None
+        self.active_screen = self.GAME_SCREEN
+        self._create_match()
 
+    def start_bot_game(self, difficulty):
+        """
+        Start a bot-mode match with the selected difficulty.
+        Bot moves are not implemented yet, so the board currently continues
+        to accept input for both colors.
+        """
+        self.gamemode = self.BOT_MODE
+        self.bot_difficulty = difficulty
+        self.active_screen = self.GAME_SCREEN
+        self._create_match()
+    
     def rematch(self):
         """
         Print a terminal separator and start a fresh match.
@@ -118,7 +151,7 @@ class ChessGame:
             The saved history `Path`, or `None` 
             when this match was already saved.
         """
-        if self.match_history_saved:
+        if self.game_state is None or self.match_history_saved:
             return None
 
         if not self.game_state.game_over:
@@ -157,6 +190,11 @@ class ChessGame:
         """
         Draw and present one complete application frame.
         """
+        if self.active_screen == self.START_SCREEN:
+            self.start_menu_ui.draw(self.screen)
+            pg.display.flip()
+            return
+
         if self.game_state.game_over:
             self.game_over_ui.activate()
             self._save_completed_match()
