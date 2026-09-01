@@ -51,6 +51,10 @@ class EventHandler:
             self._handle_game_over_action(action)
             return
 
+        if self.chess_game.is_bot_turn:
+            self.chess_game.input_handler.reset_selection()
+            return
+
         state_changed = self.chess_game.input_handler.handle_mouse_click(
             mouse_position
         )

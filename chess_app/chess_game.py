@@ -10,6 +10,8 @@ from chess_app.event_handler import EventHandler
 from chess_app.input_handler import InputHandler
 from chess_app.match_history import MatchHistory
 from chess_engine import GameState
+from chess_engine.bots import EasyBot
+from chess_engine.moves.execution.move_executor import MoveExecutor
 from chess_ui.animations import MoveAnimation
 from chess_ui.config import BOARD_PIXEL_SIZE
 from chess_ui.renderers import GameRenderer
@@ -42,6 +44,7 @@ class ChessGame:
         self.active_screen = self.START_SCREEN
         self.gamemode = None
         self.bot_difficulty = None
+        self.bot = None
 
         self.start_menu_ui = StartMenuUI()
         self.event_handler = EventHandler(self)
@@ -82,19 +85,49 @@ class ChessGame:
         """
         self.gamemode = self.PLAYER_MODE
         self.bot_difficulty = None
+        self.bot = None
         self.active_screen = self.GAME_SCREEN
         self._create_match()
 
     def start_bot_game(self, difficulty):
         """
-        Start a bot-mode match with the selected difficulty.
-        Bot moves are not implemented yet, so the board currently continues
-        to accept input for both colors.
+        Start a bot-mode match with the player as White.
         """
         self.gamemode = self.BOT_MODE
         self.bot_difficulty = difficulty
+        self.bot = EasyBot() if difficulty == 'easy' else None
         self.active_screen = self.GAME_SCREEN
         self._create_match()
+
+    @property
+    def is_bot_turn(self):
+        """Return whether the configured Black bot owns the current turn."""
+        return (
+            self.gamemode == self.BOT_MODE
+            and self.bot is not None
+            and self.game_state is not None
+            and not self.game_state.white_to_move
+            and not self.game_state.game_over
+        )
+
+    def _play_bot_turn(self):
+        """Play and animate one Black bot move when the board is ready."""
+        if not self.is_bot_turn or self.move_animation.is_animating:
+            return False
+
+        move = self.bot.choose_move(self.game_state)
+        if move is None:
+            return False
+
+        outcome = self.game_state.move.handle_piece_move(*move)
+
+        if outcome == MoveExecutor.PROMOTION_PENDING:
+            self.game_state.move.executor.handle_pawn_promotion('Q')
+        elif outcome != MoveExecutor.MOVED:
+            return False
+
+        self.input_handler.animate_latest_move()
+        return True
     
     def rematch(self):
         """
@@ -194,6 +227,8 @@ class ChessGame:
             self.start_menu_ui.draw(self.screen)
             pg.display.flip()
             return
+
+        self._play_bot_turn()
 
         if self.game_state.game_over:
             self.game_over_ui.activate()

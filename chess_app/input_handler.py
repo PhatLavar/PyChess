@@ -148,7 +148,7 @@ class InputHandler:
             return False
 
         if outcome == MoveExecutor.MOVED:
-            self._animate_latest_move()
+            self.animate_latest_move()
             self.reset_selection()
             return True
 
@@ -173,12 +173,12 @@ class InputHandler:
         )
 
         if state_changed:
-            self._animate_latest_move()
+            self.animate_latest_move()
             self.reset_selection()
 
         return state_changed
 
-    def _animate_latest_move(self):
+    def animate_latest_move(self):
         """
         Create UI animations from the latest engine history record.
         """
