@@ -36,7 +36,7 @@ class EventHandler:
                 self._handle_mouse_click(event.pos)
 
             elif event.type == pg.KEYDOWN and event.key == pg.K_z:
-                self.chess_game.input_handler.handle_undo()
+                self.chess_game.handle_undo()
 
         return True
 

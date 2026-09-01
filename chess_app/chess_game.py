@@ -152,6 +152,26 @@ class ChessGame:
         self.input_handler.animate_latest_move()
         self.bot_wait_started_at = None
         return True
+
+    def handle_undo(self):
+        """Undo one move in PvP or one complete player turn in bot mode."""
+        if self.game_state is None:
+            return False
+
+        self.bot_wait_started_at = None
+
+        if self.gamemode != self.BOT_MODE or self.bot is None:
+            return self.input_handler.handle_undo()
+
+        moves_to_undo = 2 if self.game_state.white_to_move else 1
+        state_changed = False
+
+        for _ in range(moves_to_undo):
+            if not self.input_handler.handle_undo():
+                break
+            state_changed = True
+
+        return state_changed
     
     def rematch(self):
         """

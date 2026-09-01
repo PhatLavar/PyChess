@@ -12,11 +12,19 @@ class AnimationStub:
 
 
 class InputStub:
-    def __init__(self):
+    def __init__(self, game_state=None):
+        self.game_state = game_state
         self.animation_count = 0
+        self.undo_count = 0
 
     def animate_latest_move(self):
         self.animation_count += 1
+
+    def handle_undo(self):
+        changed = self.game_state.move.handle_undo_move()
+        if changed:
+            self.undo_count += 1
+        return changed
 
 
 class BotGameplayTests(unittest.TestCase):
@@ -28,7 +36,7 @@ class BotGameplayTests(unittest.TestCase):
         self.game.bot_wait_started_at = None
         self.game.game_state = GameState()
         self.game.move_animation = AnimationStub()
-        self.game.input_handler = InputStub()
+        self.game.input_handler = InputStub(self.game.game_state)
 
     def test_player_starts_as_white(self):
         self.assertTrue(self.game.game_state.white_to_move)
@@ -60,6 +68,29 @@ class BotGameplayTests(unittest.TestCase):
 
         self.assertFalse(self.game._play_bot_turn())
         self.assertFalse(self.game.game_state.white_to_move)
+
+    def test_undo_after_bot_reply_restores_position_before_player_move(self):
+        initial_board = [row.copy() for row in self.game.game_state.board.board]
+        self.game.game_state.move.handle_piece_move((6, 4), (4, 4))
+        with patch('chess_app.chess_game.pg.time.get_ticks', side_effect=[1000, 1500]):
+            self.game._play_bot_turn()
+            self.game._play_bot_turn()
+
+        self.assertTrue(self.game.handle_undo())
+        self.assertEqual(self.game.input_handler.undo_count, 2)
+        self.assertEqual(self.game.game_state.board.board, initial_board)
+        self.assertTrue(self.game.game_state.white_to_move)
+
+    def test_undo_before_bot_reply_cancels_pending_bot_turn(self):
+        initial_board = [row.copy() for row in self.game.game_state.board.board]
+        self.game.game_state.move.handle_piece_move((6, 4), (4, 4))
+        self.game.bot_wait_started_at = 1000
+
+        self.assertTrue(self.game.handle_undo())
+        self.assertEqual(self.game.input_handler.undo_count, 1)
+        self.assertEqual(self.game.game_state.board.board, initial_board)
+        self.assertTrue(self.game.game_state.white_to_move)
+        self.assertIsNone(self.game.bot_wait_started_at)
 
 
 if __name__ == '__main__':
