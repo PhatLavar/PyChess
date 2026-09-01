@@ -4,7 +4,7 @@ from unittest.mock import patch
 
 from chess_app.chess_game import ChessGame
 from chess_engine import GameState
-from chess_engine.bots import EasyBot, MediumBot
+from chess_engine.bots import EasyBot, HardBot, MediumBot
 
 
 class AnimationStub:
@@ -48,6 +48,13 @@ class BotGameplayTests(unittest.TestCase):
 
         self.assertIsInstance(self.game.bot, MediumBot)
         self.assertEqual(self.game.bot_difficulty, 'medium')
+
+    def test_hard_selection_enables_hard_bot(self):
+        with patch.object(self.game, '_create_match'):
+            self.game.start_bot_game('hard')
+
+        self.assertIsInstance(self.game.bot, HardBot)
+        self.assertEqual(self.game.bot_difficulty, 'hard')
 
     def test_easy_bot_plays_black_after_white_move(self):
         outcome = self.game.game_state.move.handle_piece_move((6, 4), (4, 4))

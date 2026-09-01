@@ -11,7 +11,7 @@ from chess_app.event_handler import EventHandler
 from chess_app.input_handler import InputHandler
 from chess_app.match_history import MatchHistory
 from chess_engine import GameState
-from chess_engine.bots import EasyBot, MediumBot
+from chess_engine.bots import EasyBot, HardBot, MediumBot
 from chess_engine.moves.execution.move_executor import MoveExecutor
 from chess_ui.animations import MoveAnimation
 from chess_ui.config import BOARD_PIXEL_SIZE
@@ -101,6 +101,7 @@ class ChessGame:
         bot_types = {
             'easy': EasyBot,
             'medium': MediumBot,
+            'hard': HardBot,
         }
         bot_type = bot_types.get(difficulty)
         self.bot = bot_type() if bot_type is not None else None
