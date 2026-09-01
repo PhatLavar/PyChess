@@ -3,6 +3,7 @@ Application loop configuration.
 """
 
 MAX_FPS = 60
+BOT_MOVE_DELAY_MS = 500
 
 MATCH_HISTORY_FOLDER_NAME = 'match_history'
 MATCH_HISTORY_TIMESTAMP_FORMAT = '%Y%m%d-%H%M'

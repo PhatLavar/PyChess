@@ -1,5 +1,6 @@
 import random
 import unittest
+from unittest.mock import patch
 
 from chess_app.chess_game import ChessGame
 from chess_engine import GameState
@@ -24,6 +25,7 @@ class BotGameplayTests(unittest.TestCase):
         self.game.gamemode = ChessGame.BOT_MODE
         self.game.bot_difficulty = 'easy'
         self.game.bot = EasyBot(rng=random.Random(7))
+        self.game.bot_wait_started_at = None
         self.game.game_state = GameState()
         self.game.move_animation = AnimationStub()
         self.game.input_handler = InputStub()
@@ -37,7 +39,10 @@ class BotGameplayTests(unittest.TestCase):
 
         self.assertEqual(outcome, 'moved')
         self.assertTrue(self.game.is_bot_turn)
-        self.assertTrue(self.game._play_bot_turn())
+        with patch('chess_app.chess_game.pg.time.get_ticks', side_effect=[1000, 1499, 1500]):
+            self.assertFalse(self.game._play_bot_turn())
+            self.assertFalse(self.game._play_bot_turn())
+            self.assertTrue(self.game._play_bot_turn())
         self.assertTrue(self.game.game_state.white_to_move)
         self.assertEqual(len(self.game.game_state.move.notation), 2)
         self.assertEqual(self.game.input_handler.animation_count, 1)

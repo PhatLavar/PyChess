@@ -1,6 +1,7 @@
 import pygame as pg
 
 from chess_app.config import (
+    BOT_MOVE_DELAY_MS,
     MATCH_HISTORY_SEPARATOR_CHARACTER,
     MATCH_HISTORY_SEPARATOR_LENGTH,
     MATCH_HISTORY_SEPARATOR_LINES,
@@ -45,6 +46,7 @@ class ChessGame:
         self.gamemode = None
         self.bot_difficulty = None
         self.bot = None
+        self.bot_wait_started_at = None
 
         self.start_menu_ui = StartMenuUI()
         self.event_handler = EventHandler(self)
@@ -86,6 +88,7 @@ class ChessGame:
         self.gamemode = self.PLAYER_MODE
         self.bot_difficulty = None
         self.bot = None
+        self.bot_wait_started_at = None
         self.active_screen = self.GAME_SCREEN
         self._create_match()
 
@@ -96,6 +99,7 @@ class ChessGame:
         self.gamemode = self.BOT_MODE
         self.bot_difficulty = difficulty
         self.bot = EasyBot() if difficulty == 'easy' else None
+        self.bot_wait_started_at = None
         self.active_screen = self.GAME_SCREEN
         self._create_match()
 
@@ -112,7 +116,21 @@ class ChessGame:
 
     def _play_bot_turn(self):
         """Play and animate one Black bot move when the board is ready."""
-        if not self.is_bot_turn or self.move_animation.is_animating:
+        if not self.is_bot_turn:
+            self.bot_wait_started_at = None
+            return False
+
+        if self.move_animation.is_animating:
+            self.bot_wait_started_at = None
+            return False
+
+        current_time = pg.time.get_ticks()
+
+        if self.bot_wait_started_at is None:
+            self.bot_wait_started_at = current_time
+            return False
+
+        if current_time - self.bot_wait_started_at < BOT_MOVE_DELAY_MS:
             return False
 
         move = self.bot.choose_move(self.game_state)
@@ -127,6 +145,7 @@ class ChessGame:
             return False
 
         self.input_handler.animate_latest_move()
+        self.bot_wait_started_at = None
         return True
     
     def rematch(self):
@@ -141,6 +160,7 @@ class ChessGame:
         Replace match and presentation state while preserving gamemode.
         """
         self.game_state = GameState()
+        self.bot_wait_started_at = None
         self.match_history_saved = False
         self.move_animation = MoveAnimation()
         self.input_handler = InputHandler(
