@@ -76,6 +76,10 @@ class EventHandler:
 
         if isinstance(action, tuple) and action[0] == 'bot':
             self.chess_game.start_bot_game(action[1])
+            return
+
+        if isinstance(action, tuple) and action[0] == 'bot_bot':
+            self.chess_game.start_bot_bot_game(action[1])
 
     def _handle_game_over_action(self, action):
         """

@@ -22,7 +22,7 @@ from chess_ui.config import (
 
 class StartMenuUI:
     """
-    Display the initial Player/Bot selection and bot difficulties.
+    Display the initial matchup selection and bot difficulties.
     """
     MODE_VIEW = 'mode'
     DIFFICULTY_VIEW = 'difficulty'
@@ -41,6 +41,7 @@ class StartMenuUI:
     def __init__(self):
         self.active_view = self.MODE_VIEW
         self.pending_difficulty = 'easy'
+        self.pending_bot_mode = None
         self.title_font = pg.font.Font(None, 84)
         self.difficulty_title_font = pg.font.Font(None, TITLE_FONT_SIZE)
         self.button_font = pg.font.Font(None, BUTTON_FONT_SIZE)
@@ -53,14 +54,14 @@ class StartMenuUI:
 
     def _create_mode_layout(self):
         """
-        Stack two full-width buttons within the width of the PyChess title.
+        Stack three full-width matchup buttons under the PyChess title.
         """
         title_width, title_height = self.title_font.size('PyChess')
         group_height = (
             title_height
             + self.MODE_TITLE_TO_BUTTON_GAP
-            + self.MODE_BUTTON_HEIGHT * 2
-            + self.BUTTON_GAP
+            + self.MODE_BUTTON_HEIGHT * 3
+            + self.BUTTON_GAP * 2
         )
         group_top = BOARD_PIXEL_SIZE // 2 - group_height // 2
         self.mode_title_center_y = group_top + title_height // 2
@@ -71,15 +72,21 @@ class StartMenuUI:
         )
         row_x = BOARD_PIXEL_SIZE // 2 - title_width // 2
 
-        self.player_button = pg.Rect(
+        self.player_bot_button = pg.Rect(
             row_x,
             button_y,
             title_width,
             self.MODE_BUTTON_HEIGHT,
         )
-        self.bot_button = pg.Rect(
+        self.player_player_button = pg.Rect(
             row_x,
-            self.player_button.bottom + self.BUTTON_GAP,
+            self.player_bot_button.bottom + self.BUTTON_GAP,
+            title_width,
+            self.MODE_BUTTON_HEIGHT,
+        )
+        self.bot_bot_button = pg.Rect(
+            row_x,
+            self.player_player_button.bottom + self.BUTTON_GAP,
             title_width,
             self.MODE_BUTTON_HEIGHT,
         )
@@ -219,15 +226,16 @@ class StartMenuUI:
 
     def _draw_mode_view(self, screen):
         """
-        Draw PyChess with the Player and Bot row.
+        Draw PyChess with the three available matchups.
         """
         title = self.title_font.render('PyChess', True, pg.Color(TEXT_COLOR))
         title_rect = title.get_rect(
             center=(BOARD_PIXEL_SIZE // 2, self.mode_title_center_y)
         )
         screen.blit(title, title_rect)
-        self._draw_button(screen, self.player_button, 'Player')
-        self._draw_button(screen, self.bot_button, 'Bot')
+        self._draw_button(screen, self.player_bot_button, 'Player - Bot')
+        self._draw_button(screen, self.player_player_button, 'Player - Player')
+        self._draw_button(screen, self.bot_bot_button, 'Bot - Bot')
 
     def _draw_difficulty_view(self, screen):
         """
@@ -303,11 +311,16 @@ class StartMenuUI:
 
     def _handle_mode_click(self, mouse_position):
         """
-        Handle Player and Bot clicks.
+        Handle matchup clicks.
         """
-        if self.player_button.collidepoint(mouse_position):
+        if self.player_player_button.collidepoint(mouse_position):
             return 'player'
-        if self.bot_button.collidepoint(mouse_position):
+        if self.player_bot_button.collidepoint(mouse_position):
+            self.pending_bot_mode = 'bot'
+            self.pending_difficulty = 'easy'
+            self.active_view = self.DIFFICULTY_VIEW
+        elif self.bot_bot_button.collidepoint(mouse_position):
+            self.pending_bot_mode = 'bot_bot'
             self.pending_difficulty = 'easy'
             self.active_view = self.DIFFICULTY_VIEW
         return None
@@ -322,8 +335,9 @@ class StartMenuUI:
                 return None
         if self.back_button.collidepoint(mouse_position):
             self.pending_difficulty = 'easy'
+            self.pending_bot_mode = None
             self.active_view = self.MODE_VIEW
             return None
         if self.select_difficulty_button.collidepoint(mouse_position):
-            return 'bot', self.pending_difficulty
+            return self.pending_bot_mode, self.pending_difficulty
         return None

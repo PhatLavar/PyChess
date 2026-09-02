@@ -113,6 +113,42 @@ class BotGameplayTests(unittest.TestCase):
         self.assertTrue(self.game.game_state.white_to_move)
         self.assertIsNone(self.game.bot_wait_started_at)
 
+    def test_bot_bot_selection_creates_same_difficulty_for_both_colors(self):
+        self.game.white_bot = None
+
+        with patch.object(self.game, '_create_match'):
+            self.game.start_bot_bot_game('hard')
+
+        self.assertEqual(self.game.gamemode, ChessGame.BOT_BOT_MODE)
+        self.assertEqual(self.game.bot_difficulty, 'hard')
+        self.assertIsInstance(self.game.white_bot, HardBot)
+        self.assertIsInstance(self.game.bot, HardBot)
+        self.assertIsNot(self.game.white_bot, self.game.bot)
+
+    def test_bot_bot_mode_automatically_plays_both_colors(self):
+        self.game.gamemode = ChessGame.BOT_BOT_MODE
+        self.game.white_bot = EasyBot(rng=random.Random(3))
+
+        with patch(
+            'chess_app.chess_game.pg.time.get_ticks',
+            side_effect=[1000, 1500, 2000, 2500],
+        ):
+            self.assertFalse(self.game._play_bot_turn())
+            self.assertTrue(self.game._play_bot_turn())
+            self.assertFalse(self.game._play_bot_turn())
+            self.assertTrue(self.game._play_bot_turn())
+
+        self.assertTrue(self.game.game_state.white_to_move)
+        self.assertEqual(len(self.game.game_state.move.notation), 2)
+        self.assertEqual(self.game.input_handler.animation_count, 2)
+
+    def test_bot_bot_mode_does_not_allow_undo(self):
+        self.game.gamemode = ChessGame.BOT_BOT_MODE
+        self.game.white_bot = EasyBot(rng=random.Random(3))
+
+        self.assertFalse(self.game.handle_undo())
+        self.assertEqual(self.game.input_handler.undo_count, 0)
+
 
 if __name__ == '__main__':
     unittest.main()

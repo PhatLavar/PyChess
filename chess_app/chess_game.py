@@ -26,6 +26,7 @@ class ChessGame:
 
     PLAYER_MODE = 'player'
     BOT_MODE = 'bot'
+    BOT_BOT_MODE = 'bot_bot'
     START_SCREEN = 'start'
     GAME_SCREEN = 'game'
     WINDOW_TITLE = 'PyChess'
@@ -46,6 +47,7 @@ class ChessGame:
         self.gamemode = None
         self.bot_difficulty = None
         self.bot = None
+        self.white_bot = None
         self.bot_wait_started_at = None
 
         self.start_menu_ui = StartMenuUI()
@@ -88,6 +90,7 @@ class ChessGame:
         self.gamemode = self.PLAYER_MODE
         self.bot_difficulty = None
         self.bot = None
+        self.white_bot = None
         self.bot_wait_started_at = None
         self.active_screen = self.GAME_SCREEN
         self._create_match()
@@ -98,6 +101,27 @@ class ChessGame:
         """
         self.gamemode = self.BOT_MODE
         self.bot_difficulty = difficulty
+        bot_type = self._get_bot_type(difficulty)
+        self.bot = bot_type() if bot_type is not None else None
+        self.white_bot = None
+        self.bot_wait_started_at = None
+        self.active_screen = self.GAME_SCREEN
+        self._create_match()
+
+    def start_bot_bot_game(self, difficulty):
+        """Start a spectator match with equally skilled bots on both sides."""
+        self.gamemode = self.BOT_BOT_MODE
+        self.bot_difficulty = difficulty
+        bot_type = self._get_bot_type(difficulty)
+        self.white_bot = bot_type() if bot_type is not None else None
+        self.bot = bot_type() if bot_type is not None else None
+        self.bot_wait_started_at = None
+        self.active_screen = self.GAME_SCREEN
+        self._create_match()
+
+    @staticmethod
+    def _get_bot_type(difficulty):
+        """Return the bot class registered for a difficulty name."""
         bot_types = {
             'easy': EasyBot,
             'medium': MediumBot,
@@ -105,22 +129,23 @@ class ChessGame:
             'master': MasterBot,
             'impossible': ImpossibleBot,
         }
-        bot_type = bot_types.get(difficulty)
-        self.bot = bot_type() if bot_type is not None else None
-        self.bot_wait_started_at = None
-        self.active_screen = self.GAME_SCREEN
-        self._create_match()
+        return bot_types.get(difficulty)
+
+    @property
+    def active_bot(self):
+        """Return the bot that owns the current turn, if any."""
+        if self.game_state is None or self.game_state.game_over:
+            return None
+        if self.gamemode == self.BOT_BOT_MODE:
+            return self.white_bot if self.game_state.white_to_move else self.bot
+        if self.gamemode == self.BOT_MODE and not self.game_state.white_to_move:
+            return self.bot
+        return None
 
     @property
     def is_bot_turn(self):
         """Return whether the configured Black bot owns the current turn."""
-        return (
-            self.gamemode == self.BOT_MODE
-            and self.bot is not None
-            and self.game_state is not None
-            and not self.game_state.white_to_move
-            and not self.game_state.game_over
-        )
+        return self.active_bot is not None
 
     def _play_bot_turn(self):
         """Play and animate one Black bot move when the board is ready."""
@@ -141,14 +166,18 @@ class ChessGame:
         if current_time - self.bot_wait_started_at < BOT_MOVE_DELAY_MS:
             return False
 
-        move = self.bot.choose_move(self.game_state)
+        active_bot = self.active_bot
+        if active_bot is None:
+            return False
+
+        move = active_bot.choose_move(self.game_state)
         if move is None:
             return False
 
         outcome = self.game_state.move.handle_piece_move(*move)
 
         if outcome == MoveExecutor.PROMOTION_PENDING:
-            promotion_choice = getattr(self.bot, 'promotion_choice', 'Q')
+            promotion_choice = getattr(active_bot, 'promotion_choice', 'Q')
             self.game_state.move.executor.handle_pawn_promotion(
                 promotion_choice
             )
@@ -162,6 +191,9 @@ class ChessGame:
     def handle_undo(self):
         """Undo one move in PvP or one complete player turn in bot mode."""
         if self.game_state is None:
+            return False
+
+        if self.gamemode == self.BOT_BOT_MODE:
             return False
 
         self.bot_wait_started_at = None
@@ -235,8 +267,9 @@ class ChessGame:
             The saved history `Path`, or `None` 
             when this match was already saved.
         """
-        if self.bot is not None and hasattr(self.bot, 'close'):
-            self.bot.close()
+        for bot in (getattr(self, 'white_bot', None), self.bot):
+            if bot is not None and hasattr(bot, 'close'):
+                bot.close()
 
         if self.game_state is None or self.match_history_saved:
             return None
