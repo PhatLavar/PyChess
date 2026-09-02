@@ -1,6 +1,8 @@
 import math
 import pygame as pg
 
+from chess_ui.screens.start_menu_ui import StartMenuUI
+
 from chess_ui.config import (
     BOARD_PIXEL_SIZE,
     BUTTON_DEFAULT_COLOR,
@@ -19,9 +21,7 @@ from chess_ui.config import (
     FULL_ALPHA,
     GAME_OVER_DELAY_MS,
     GAMEMODE_ACTIONS_TOP_GAP,
-    GAMEMODE_ACTION_GAP,
     GAMEMODE_ACTION_HEIGHT,
-    GAMEMODE_BACK_WIDTH_RATIO,
     GAMEMODE_BUTTON_GAP,
     GAMEMODE_BUTTON_HEIGHT,
     GAMEMODE_PANEL_WIDTH,
@@ -49,7 +49,12 @@ class GameOverUI:
 
     RESULT_VIEW = 'result'
     GAMEMODE_VIEW = 'gamemode'
-    GAMEMODE_OPTIONS = ('Gamemode 1', 'Gamemode 2', 'Gamemode 3')
+    DIFFICULTY_VIEW = 'difficulty'
+    GAMEMODE_OPTIONS = (
+        ('Player - Bot', 'bot'),
+        ('Player - Player', 'player'),
+        ('Bot - Bot', 'bot_bot'),
+    )
 
     def __init__(self, game_state, current_gamemode):
         """
@@ -61,9 +66,9 @@ class GameOverUI:
         """
         self.game_state = game_state
         self.current_gamemode = current_gamemode
-        self.pending_gamemode = current_gamemode
         self.active_view = self.RESULT_VIEW
         self.started_at = None
+        self.difficulty_menu = StartMenuUI()
 
         self.status_font = pg.font.Font(None, STATUS_FONT_SIZE)
         self.result_font = pg.font.Font(None, RESULT_FONT_SIZE)
@@ -152,7 +157,8 @@ class GameOverUI:
         modes_top = group_top + title_height + GAMEMODE_TITLE_GAP
 
         self.gamemode_buttons = []
-        for index, label in enumerate(self.GAMEMODE_OPTIONS):
+        for index, option in enumerate(self.GAMEMODE_OPTIONS):
+            label, action = option
             button_rect = pg.Rect(
                 center_x - GAMEMODE_PANEL_WIDTH // 2,
                 modes_top + index * (
@@ -161,24 +167,15 @@ class GameOverUI:
                 GAMEMODE_PANEL_WIDTH,
                 GAMEMODE_BUTTON_HEIGHT,
             )
-            self.gamemode_buttons.append((label, button_rect))
+            self.gamemode_buttons.append((label, action, button_rect))
 
-        actions_y = self.gamemode_buttons[-1][1].bottom + GAMEMODE_ACTIONS_TOP_GAP
-        usable_width = GAMEMODE_PANEL_WIDTH - GAMEMODE_ACTION_GAP
-        back_width = int(usable_width * GAMEMODE_BACK_WIDTH_RATIO)
-        change_width = usable_width - back_width
+        actions_y = self.gamemode_buttons[-1][2].bottom + GAMEMODE_ACTIONS_TOP_GAP
         actions_x = center_x - GAMEMODE_PANEL_WIDTH // 2
 
         self.back_button = pg.Rect(
             actions_x,
             actions_y,
-            back_width,
-            GAMEMODE_ACTION_HEIGHT,
-        )
-        self.confirm_change_button = pg.Rect(
-            self.back_button.right + GAMEMODE_ACTION_GAP,
-            actions_y,
-            change_width,
+            GAMEMODE_PANEL_WIDTH,
             GAMEMODE_ACTION_HEIGHT,
         )
 
@@ -198,6 +195,9 @@ class GameOverUI:
 
         if elapsed < GAME_OVER_DELAY_MS:
             self._draw_flashing_phase(screen, elapsed)
+        elif self.active_view == self.DIFFICULTY_VIEW:
+            self._draw_dark_overlay(screen)
+            self.difficulty_menu._draw_difficulty_view(screen)
         elif self.active_view == self.GAMEMODE_VIEW:
             self._draw_gamemode_screen(screen)
         else:
@@ -276,7 +276,7 @@ class GameOverUI:
 
     def _draw_gamemode_screen(self, screen):
         """
-        Draw pending gamemode choices and Back/Change actions.
+        Draw the three matchup choices and Back action.
         """
         self._draw_dark_overlay(screen)
         title = self.title_font.render('Select Gamemode', True, pg.Color(TEXT_COLOR))
@@ -285,16 +285,10 @@ class GameOverUI:
         )
         screen.blit(title, title_rect)
 
-        for label, button_rect in self.gamemode_buttons:
-            self._draw_button(
-                screen,
-                button_rect,
-                label,
-                selected=label == self.pending_gamemode,
-            )
+        for label, _, button_rect in self.gamemode_buttons:
+            self._draw_button(screen, button_rect, label)
 
         self._draw_button(screen, self.back_button, 'Back')
-        self._draw_button(screen, self.confirm_change_button, 'Select')
 
     def _draw_dark_overlay(self, screen):
         """
@@ -357,7 +351,9 @@ class GameOverUI:
 
         Returns:
             'rematch' for the Rematch button,
-            ('change_mode', selected_mode) after confirmation,
+            'player' for Player-Player,
+            ('bot', difficulty) for Player-Bot,
+            ('bot_bot', difficulty) for Bot-Bot,
             or None when no application action is required.
         """
         if not self.game_state.game_over:
@@ -369,32 +365,45 @@ class GameOverUI:
         if self.active_view == self.GAMEMODE_VIEW:
             return self._handle_gamemode_click(mouse_position)
 
+        if self.active_view == self.DIFFICULTY_VIEW:
+            action = self.difficulty_menu.handle_click(mouse_position)
+            if self.difficulty_menu.active_view == self.difficulty_menu.MODE_VIEW:
+                self.active_view = self.GAMEMODE_VIEW
+            return action
+
         if self.rematch_button.collidepoint(mouse_position):
             return 'rematch'
 
         if self.change_mode_button.collidepoint(mouse_position):
-            self.pending_gamemode = self.current_gamemode
+            self._reset_difficulty_menu()
             self.active_view = self.GAMEMODE_VIEW
 
         return None
 
     def _handle_gamemode_click(self, mouse_position):
         """
-        Update, discard, or confirm the pending gamemode selection.
+        Start Player-Player directly or open difficulty selection for bot modes.
         """
-        for label, button_rect in self.gamemode_buttons:
+        for _, action, button_rect in self.gamemode_buttons:
             if button_rect.collidepoint(mouse_position):
-                self.pending_gamemode = label
+                if action == 'player':
+                    return action
+                self.difficulty_menu.pending_bot_mode = action
+                self.difficulty_menu.pending_difficulty = 'easy'
+                self.difficulty_menu.active_view = (
+                    self.difficulty_menu.DIFFICULTY_VIEW
+                )
+                self.active_view = self.DIFFICULTY_VIEW
                 return None
 
         if self.back_button.collidepoint(mouse_position):
-            self.pending_gamemode = self.current_gamemode
             self.active_view = self.RESULT_VIEW
             return None
 
-        if self.confirm_change_button.collidepoint(mouse_position):
-            self.current_gamemode = self.pending_gamemode
-            self.active_view = self.RESULT_VIEW
-            return 'change_mode', self.current_gamemode
-
         return None
+
+    def _reset_difficulty_menu(self):
+        """Reset shared difficulty-selection state for a fresh mode change."""
+        self.difficulty_menu.active_view = self.difficulty_menu.MODE_VIEW
+        self.difficulty_menu.pending_bot_mode = None
+        self.difficulty_menu.pending_difficulty = 'easy'

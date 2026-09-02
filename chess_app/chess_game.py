@@ -87,6 +87,7 @@ class ChessGame:
         """
         Start the existing local player-versus-player game.
         """
+        self._close_bots()
         self.gamemode = self.PLAYER_MODE
         self.bot_difficulty = None
         self.bot = None
@@ -99,6 +100,7 @@ class ChessGame:
         """
         Start a bot-mode match with the player as White.
         """
+        self._close_bots()
         self.gamemode = self.BOT_MODE
         self.bot_difficulty = difficulty
         bot_type = self._get_bot_type(difficulty)
@@ -110,6 +112,7 @@ class ChessGame:
 
     def start_bot_bot_game(self, difficulty):
         """Start a spectator match with equally skilled bots on both sides."""
+        self._close_bots()
         self.gamemode = self.BOT_BOT_MODE
         self.bot_difficulty = difficulty
         bot_type = self._get_bot_type(difficulty)
@@ -144,11 +147,11 @@ class ChessGame:
 
     @property
     def is_bot_turn(self):
-        """Return whether the configured Black bot owns the current turn."""
+        """Return whether a configured bot owns the current turn."""
         return self.active_bot is not None
 
     def _play_bot_turn(self):
-        """Play and animate one Black bot move when the board is ready."""
+        """Play and animate one bot move when the board is ready."""
         if not self.is_bot_turn:
             self.bot_wait_started_at = None
             return False
@@ -267,9 +270,7 @@ class ChessGame:
             The saved history `Path`, or `None` 
             when this match was already saved.
         """
-        for bot in (getattr(self, 'white_bot', None), self.bot):
-            if bot is not None and hasattr(bot, 'close'):
-                bot.close()
+        self._close_bots()
 
         if self.game_state is None or self.match_history_saved:
             return None
@@ -282,6 +283,12 @@ class ChessGame:
         )
         self.match_history_saved = True
         return history_path
+
+    def _close_bots(self):
+        """Release resources held by bots from the previous match."""
+        for bot in (getattr(self, 'white_bot', None), getattr(self, 'bot', None)):
+            if bot is not None and hasattr(bot, 'close'):
+                bot.close()
 
     def _print_match_separator(self):
         """
