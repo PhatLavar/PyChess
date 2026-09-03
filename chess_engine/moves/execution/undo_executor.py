@@ -34,6 +34,7 @@ class UndoExecutor:
             return False
 
         self.game_state.repetition_tracker.remove_current_position()
+        self.game_state.fifty_move_rule.undo_move()
         last_move = self.move_logger.notation.pop()
 
         moved_square = last_move['moved_square']

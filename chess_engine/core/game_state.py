@@ -2,6 +2,7 @@ from chess_engine.core.board import Board
 from chess_engine.moves import Move
 from chess_engine.rules import MoveValidator
 from chess_engine.rules.dead_position_validator import DeadPositionValidator
+from chess_engine.rules.fifty_move_rule import FiftyMoveRule
 from chess_engine.rules.repetition_tracker import RepetitionTracker
 
 
@@ -49,6 +50,7 @@ class GameState:
         self.move_validator = MoveValidator(self)
         self.move = Move(self)
         self.dead_position_validator = DeadPositionValidator(self)
+        self.fifty_move_rule = FiftyMoveRule()
         self.repetition_tracker = RepetitionTracker(self)
 
     ####################################################################################
@@ -62,7 +64,7 @@ class GameState:
         Returns:
             A (move_status, match_result) tuple. 
             `move_status` is CHECK, CHECKMATE, STALEMATE, DEAD_POSITION,
-            REPETITION, or None.
+            FIFTY_MOVE, REPETITION, or None.
             `match_result` is WHITE WINS!, BLACK WINS!, DRAW!, or None
         """
         self.white_to_move = not self.white_to_move
@@ -79,6 +81,10 @@ class GameState:
         if self.dead_position_validator.is_dead_position():
             self._set_game_over(result='dead_position', winner=None)
             return 'DEAD_POSITION', 'DRAW!'
+
+        if self.fifty_move_rule.is_draw():
+            self._set_game_over(result='fifty_move', winner=None)
+            return 'FIFTY_MOVE', 'DRAW!'
 
         occurrence_count = self.repetition_tracker.record_current_position()
         if occurrence_count >= RepetitionTracker.REQUIRED_OCCURRENCES:

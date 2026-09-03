@@ -144,7 +144,8 @@ class ImpossibleBot(BaseBot):
         castling = cls._castling_fen(game_state)
         en_passant = cls._square_to_uci(game_state.en_passant_target)
         fullmove = len(game_state.move.notation) // 2 + 1
-        return f"{'/'.join(rows)} {active_color} {castling} {en_passant} 0 {fullmove}"
+        halfmove = game_state.fifty_move_rule.halfmove_clock
+        return f"{'/'.join(rows)} {active_color} {castling} {en_passant} {halfmove} {fullmove}"
 
     @staticmethod
     def _castling_fen(game_state):

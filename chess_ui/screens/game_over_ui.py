@@ -236,6 +236,7 @@ class GameOverUI:
             'checkmate': ('CHECKMATE!',),
             'stalemate': ('STALEMATE!',),
             'dead_position': ('DEAD', 'POSITION!'),
+            'fifty_move': ('50-MOVE', 'RULE!'),
             'repetition': ('THREEFOLD', 'REPETITION!'),
         }
         opacity_range = ENDGAME_TEXT_MAX_OPACITY - ENDGAME_TEXT_MIN_OPACITY
@@ -324,6 +325,7 @@ class GameOverUI:
         if self.game_state.game_result in (
             'stalemate',
             'dead_position',
+            'fifty_move',
             'repetition',
         ):
             return 'DRAW!'

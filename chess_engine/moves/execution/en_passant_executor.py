@@ -46,6 +46,10 @@ class EnPassantExecutor:
         )
 
         self.state_updater.clear_en_passant_state()
+        self.game_state.fifty_move_rule.record_move(
+            moved_piece,
+            is_capture=True,
+        )
         move_status, match_result = self.game_state.finish_turn()
         self.move_logger.record_move(
             moved_piece,

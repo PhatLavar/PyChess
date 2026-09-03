@@ -42,6 +42,10 @@ class NormalMoveExecutor:
             moved_square,
             target_square
         )
+        self.game_state.fifty_move_rule.record_move(
+            moved_piece,
+            is_capture=target_piece != EMP,
+        )
 
         move_status, match_result = self.game_state.finish_turn()
         self._record_successful_move(

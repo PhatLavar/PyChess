@@ -69,6 +69,10 @@ class PawnPromotionExecutor:
 
         self._clear_promotion_state()
         self.state_updater.clear_en_passant_state()
+        self.game_state.fifty_move_rule.record_move(
+            moved_piece,
+            is_capture=is_capture,
+        )
         move_status, match_result = self.game_state.finish_turn()
         self.move_logger.record_promotion_move(
             moved_piece,
