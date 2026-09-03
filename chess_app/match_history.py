@@ -14,6 +14,11 @@ class MatchHistory:
     """
 
     PROJECT_ROOT = Path(__file__).resolve().parent.parent
+    MODE_FOLDERS = {
+        'bot': 'player-bot',
+        'player': 'player-player',
+        'bot_bot': 'bot-bot',
+    }
 
     def __init__(self, history_directory=None):
         """
@@ -32,21 +37,24 @@ class MatchHistory:
 
     def ensure_directory(self):
         """
-        Create the history directory when missing.
+        Create the history directory and its mode folders when missing.
 
         Returns:
             The history directory `Path`. Existing directories are left
             unchanged, so calling this method repeatedly is safe.
         """
         self.history_directory.mkdir(parents=True, exist_ok=True)
+        for folder_name in self.MODE_FOLDERS.values():
+            (self.history_directory / folder_name).mkdir(exist_ok=True)
         return self.history_directory
 
-    def save(self, move_log, completed_at=None):
+    def save(self, move_log, gamemode, completed_at=None):
         """
         Write all displayed move-log entries into one UTF-8 text file.
 
         Args:
             move_log: Ordered terminal log strings from the completed match.
+            gamemode: Internal game-mode name used to select its folder.
             completed_at: Optional datetime override used for deterministic
             tests. The current local datetime is used by default.
 
@@ -54,15 +62,16 @@ class MatchHistory:
             The `Path` of the newly written history file.
         """
         self.ensure_directory()
+        mode_directory = self.history_directory / self.MODE_FOLDERS[gamemode]
         timestamp = (completed_at or datetime.now()).strftime(
             MATCH_HISTORY_TIMESTAMP_FORMAT
         )
-        history_path = self._get_available_path(timestamp)
+        history_path = self._get_available_path(mode_directory, timestamp)
         file_contents = '\n'.join(move_log) + '\n'
         history_path.write_text(file_contents, encoding='utf-8')
         return history_path
 
-    def _get_available_path(self, timestamp):
+    def _get_available_path(self, mode_directory, timestamp):
         """
         Return a non-existing path while preserving the timestamp prefix.
 
@@ -72,7 +81,7 @@ class MatchHistory:
             the suffix as needed so an earlier history is never overwritten.
         """
         base_name = f'{timestamp}{MATCH_HISTORY_FILE_EXTENSION}'
-        history_path = self.history_directory / base_name
+        history_path = mode_directory / base_name
 
         if not history_path.exists():
             return history_path
@@ -83,7 +92,7 @@ class MatchHistory:
                 f'{timestamp}-{duplicate_number}'
                 f'{MATCH_HISTORY_FILE_EXTENSION}'
             )
-            history_path = self.history_directory / duplicate_name
+            history_path = mode_directory / duplicate_name
 
             if not history_path.exists():
                 return history_path

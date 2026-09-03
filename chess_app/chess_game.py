@@ -261,7 +261,8 @@ class ChessGame:
             return None
 
         history_path = self.match_history.save(
-            self.game_state.move.move_log
+            self.game_state.move.move_log,
+            self.gamemode,
         )
         self.match_history_saved = True
         return history_path
@@ -287,7 +288,8 @@ class ChessGame:
             self.game_state.move.record_end_match('TERMINATED')
 
         history_path = self.match_history.save(
-            self.game_state.move.move_log
+            self.game_state.move.move_log,
+            self.gamemode,
         )
         self.match_history_saved = True
         return history_path
