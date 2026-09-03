@@ -253,7 +253,11 @@ class ChessGame:
             The saved history `Path`, or `None` while the match continues
             or after this match has already been saved.
         """
-        if not self.game_state.game_over or self.match_history_saved:
+        if (
+            not self.game_state.game_over
+            or self.match_history_saved
+            or not self.game_state.move.notation
+        ):
             return None
 
         history_path = self.match_history.save(
@@ -273,6 +277,10 @@ class ChessGame:
         self._close_bots()
 
         if self.game_state is None or self.match_history_saved:
+            return None
+
+        if not self.game_state.move.notation:
+            self.match_history_saved = True
             return None
 
         if not self.game_state.game_over:
