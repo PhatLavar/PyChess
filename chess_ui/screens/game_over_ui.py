@@ -235,6 +235,7 @@ class GameOverUI:
         messages = {
             'checkmate': ('CHECKMATE!',),
             'stalemate': ('STALEMATE!',),
+            'dead_position': ('DEAD', 'POSITION!'),
             'repetition': ('THREEFOLD', 'REPETITION!'),
         }
         opacity_range = ENDGAME_TEXT_MAX_OPACITY - ENDGAME_TEXT_MIN_OPACITY
@@ -320,7 +321,11 @@ class GameOverUI:
         """
         Return `DRAW!` or the engine's winning-color message.
         """
-        if self.game_state.game_result in ('stalemate', 'repetition'):
+        if self.game_state.game_result in (
+            'stalemate',
+            'dead_position',
+            'repetition',
+        ):
             return 'DRAW!'
         return self.game_state.winner
 
