@@ -230,32 +230,47 @@ class GameOverUI:
 
     def _draw_status_text(self, screen, pulse):
         """
-        Pulse CHECKMATE or STALEMATE text in the board center.
+        Pulse the terminal-status text in the board center.
         """
-        message = (
-            'CHECKMATE!'
-            if self.game_state.game_result == 'checkmate'
-            else 'STALEMATE!'
-        )
-        text = self.status_font.render(message, True, pg.Color(ENDGAME_TEXT_COLOR))
-        shadow = self.status_font.render(
-            message,
-            True,
-            pg.Color(TEXT_SHADOW_COLOR),
-        )
+        messages = {
+            'checkmate': ('CHECKMATE!',),
+            'stalemate': ('STALEMATE!',),
+            'repetition': ('THREEFOLD', 'REPETITION!'),
+        }
         opacity_range = ENDGAME_TEXT_MAX_OPACITY - ENDGAME_TEXT_MIN_OPACITY
         opacity = ENDGAME_TEXT_MIN_OPACITY + pulse * opacity_range
         alpha = int(opacity * FULL_ALPHA)
-        text.set_alpha(alpha)
-        shadow.set_alpha(alpha)
-        text_rect = text.get_rect(
-            center=(BOARD_PIXEL_SIZE // 2, BOARD_PIXEL_SIZE // 2)
+        lines = messages[self.game_state.game_result]
+        line_height = self.status_font.get_linesize()
+        first_center_y = (
+            BOARD_PIXEL_SIZE // 2
+            - (len(lines) - 1) * line_height // 2
         )
-        screen.blit(
-            shadow,
-            text_rect.move(TEXT_SHADOW_OFFSET, TEXT_SHADOW_OFFSET),
-        )
-        screen.blit(text, text_rect)
+
+        for index, message in enumerate(lines):
+            text = self.status_font.render(
+                message,
+                True,
+                pg.Color(ENDGAME_TEXT_COLOR),
+            )
+            shadow = self.status_font.render(
+                message,
+                True,
+                pg.Color(TEXT_SHADOW_COLOR),
+            )
+            text.set_alpha(alpha)
+            shadow.set_alpha(alpha)
+            text_rect = text.get_rect(
+                center=(
+                    BOARD_PIXEL_SIZE // 2,
+                    first_center_y + index * line_height,
+                )
+            )
+            screen.blit(
+                shadow,
+                text_rect.move(TEXT_SHADOW_OFFSET, TEXT_SHADOW_OFFSET),
+            )
+            screen.blit(text, text_rect)
 
     def _draw_result_screen(self, screen):
         """
@@ -305,7 +320,7 @@ class GameOverUI:
         """
         Return `DRAW!` or the engine's winning-color message.
         """
-        if self.game_state.game_result == 'stalemate':
+        if self.game_state.game_result in ('stalemate', 'repetition'):
             return 'DRAW!'
         return self.game_state.winner
 

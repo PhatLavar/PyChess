@@ -33,6 +33,7 @@ class UndoExecutor:
         if len(self.move_logger.notation) == 0:
             return False
 
+        self.game_state.repetition_tracker.remove_current_position()
         last_move = self.move_logger.notation.pop()
 
         moved_square = last_move['moved_square']

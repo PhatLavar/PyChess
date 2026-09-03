@@ -1,6 +1,7 @@
 from chess_engine.core.board import Board
 from chess_engine.moves import Move
 from chess_engine.rules import MoveValidator
+from chess_engine.rules.repetition_tracker import RepetitionTracker
 
 
 class GameState:
@@ -46,6 +47,7 @@ class GameState:
 
         self.move_validator = MoveValidator(self)
         self.move = Move(self)
+        self.repetition_tracker = RepetitionTracker(self)
 
     ####################################################################################
     # --------------------------------- MATCH STATE ------------------------------------
@@ -57,7 +59,7 @@ class GameState:
 
         Returns:
             A (move_status, match_result) tuple. 
-            `move_status` is CHECK, CHECKMATE, STALEMATE, or None.
+            `move_status` is CHECK, CHECKMATE, STALEMATE, REPETITION, or None.
             `match_result` is WHITE WINS!, BLACK WINS!, DRAW!, or None
         """
         self.white_to_move = not self.white_to_move
@@ -70,6 +72,11 @@ class GameState:
         if self.move_validator.is_stalemate():
             self._set_game_over(result='stalemate', winner=None)
             return 'STALEMATE', 'DRAW!'
+
+        occurrence_count = self.repetition_tracker.record_current_position()
+        if occurrence_count >= RepetitionTracker.REQUIRED_OCCURRENCES:
+            self._set_game_over(result='repetition', winner=None)
+            return 'REPETITION', 'DRAW!'
 
         if self.move_validator.in_check():
             return 'CHECK', None
