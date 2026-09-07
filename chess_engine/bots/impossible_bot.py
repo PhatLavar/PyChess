@@ -2,6 +2,9 @@ import os
 from pathlib import Path
 import shutil
 import subprocess
+from queue import Empty, Queue
+from threading import Thread
+from time import monotonic
 
 from chess_engine.bots.base import BaseBot
 from chess_engine.bots.hard_bot import HardBot
@@ -13,6 +16,7 @@ class ImpossibleBot(BaseBot):
 
     ENVIRONMENT_PATH = 'PYCHESS_STOCKFISH_PATH'
     DEFAULT_MOVE_TIME_MS = 500
+    RESPONSE_TIMEOUT_SECONDS = 5
 
     def __init__(self, executable_path=None, move_time_ms=DEFAULT_MOVE_TIME_MS, fallback=None):
         self.executable_path = self._find_executable(executable_path)
@@ -53,6 +57,9 @@ class ImpossibleBot(BaseBot):
         except (OSError, subprocess.TimeoutExpired):
             self.process.kill()
         finally:
+            self.process.wait()
+            self.process.stdin.close()
+            self.process.stdout.close()
             self.process = None
 
     def _choose_stockfish_move(self, game_state):
@@ -60,8 +67,9 @@ class ImpossibleBot(BaseBot):
         self._send(f'position fen {self.to_fen(game_state)}')
         self._send(f'go movetime {self.move_time_ms}')
 
+        deadline = monotonic() + self.move_time_ms / 1000 + self.RESPONSE_TIMEOUT_SECONDS
         while True:
-            line = self.process.stdout.readline()
+            line = self._read_line(deadline)
             if line == '':
                 raise RuntimeError('Stockfish stopped before returning a move')
             if line.startswith('bestmove '):
@@ -83,9 +91,14 @@ class ImpossibleBot(BaseBot):
             stdout=subprocess.PIPE,
             stderr=subprocess.DEVNULL,
             text=True,
+            encoding='utf-8',
+            errors='replace',
             bufsize=1,
             creationflags=creation_flags,
         )
+        self._output = Queue()
+        Thread(target=self._collect_output, args=(self.process.stdout, self._output),
+               daemon=True).start()
         self._send('uci')
         self._read_until('uciok')
         self._send('setoption name Threads value 1')
@@ -100,12 +113,30 @@ class ImpossibleBot(BaseBot):
         self.process.stdin.flush()
 
     def _read_until(self, expected):
+        deadline = monotonic() + self.RESPONSE_TIMEOUT_SECONDS
         while True:
-            line = self.process.stdout.readline()
+            line = self._read_line(deadline)
             if line == '':
                 raise RuntimeError(f'Stockfish stopped before {expected}')
             if line.strip() == expected:
                 return
+
+    @staticmethod
+    def _collect_output(stream, output):
+        try:
+            for line in stream:
+                output.put(line)
+        finally:
+            output.put('')
+
+    def _read_line(self, deadline):
+        remaining = deadline - monotonic()
+        if remaining <= 0:
+            raise RuntimeError('Stockfish response timed out')
+        try:
+            return self._output.get(timeout=remaining)
+        except Empty as error:
+            raise RuntimeError('Stockfish response timed out') from error
 
     def _find_executable(self, requested_path):
         candidates = [

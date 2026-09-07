@@ -1,5 +1,6 @@
 import random
 import unittest
+from threading import Event
 from unittest.mock import patch
 
 from chess_app.chess_game import ChessGame
@@ -28,6 +29,11 @@ class InputStub:
 
 
 class BotGameplayTests(unittest.TestCase):
+    def finish_bot_turn(self):
+        self.assertFalse(self.game._play_bot_turn())
+        self.game._bot_task[0].result(timeout=5)
+        return self.game._play_bot_turn()
+
     def setUp(self):
         self.game = ChessGame.__new__(ChessGame)
         self.game.gamemode = ChessGame.BOT_MODE
@@ -75,10 +81,10 @@ class BotGameplayTests(unittest.TestCase):
 
         self.assertEqual(outcome, 'moved')
         self.assertTrue(self.game.is_bot_turn)
-        with patch('chess_app.chess_game.pg.time.get_ticks', side_effect=[1000, 1499, 1500]):
+        with patch('chess_app.chess_game.pg.time.get_ticks', side_effect=[1000, 1499, 1500, 1501]):
             self.assertFalse(self.game._play_bot_turn())
             self.assertFalse(self.game._play_bot_turn())
-            self.assertTrue(self.game._play_bot_turn())
+            self.assertTrue(self.finish_bot_turn())
         self.assertTrue(self.game.game_state.white_to_move)
         self.assertEqual(len(self.game.game_state.move.notation), 2)
         self.assertEqual(self.game.input_handler.animation_count, 1)
@@ -93,9 +99,9 @@ class BotGameplayTests(unittest.TestCase):
     def test_undo_after_bot_reply_restores_position_before_player_move(self):
         initial_board = [row.copy() for row in self.game.game_state.board.board]
         self.game.game_state.move.handle_piece_move((6, 4), (4, 4))
-        with patch('chess_app.chess_game.pg.time.get_ticks', side_effect=[1000, 1500]):
+        with patch('chess_app.chess_game.pg.time.get_ticks', side_effect=[1000, 1500, 1501]):
             self.game._play_bot_turn()
-            self.game._play_bot_turn()
+            self.finish_bot_turn()
 
         self.assertTrue(self.game.handle_undo())
         self.assertEqual(self.game.input_handler.undo_count, 2)
@@ -131,12 +137,12 @@ class BotGameplayTests(unittest.TestCase):
 
         with patch(
             'chess_app.chess_game.pg.time.get_ticks',
-            side_effect=[1000, 1500, 2000, 2500],
+            side_effect=[1000, 1500, 1501, 2000, 2500, 2501],
         ):
             self.assertFalse(self.game._play_bot_turn())
-            self.assertTrue(self.game._play_bot_turn())
+            self.assertTrue(self.finish_bot_turn())
             self.assertFalse(self.game._play_bot_turn())
-            self.assertTrue(self.game._play_bot_turn())
+            self.assertTrue(self.finish_bot_turn())
 
         self.assertTrue(self.game.game_state.white_to_move)
         self.assertEqual(len(self.game.game_state.move.notation), 2)
@@ -148,6 +154,32 @@ class BotGameplayTests(unittest.TestCase):
 
         self.assertFalse(self.game.handle_undo())
         self.assertEqual(self.game.input_handler.undo_count, 0)
+
+    def test_thinking_does_not_block_and_undo_discards_result(self):
+        entered, release = Event(), Event()
+        def think(snapshot):
+            self.assertIsNot(snapshot, self.game.game_state)
+            entered.set()
+            release.wait(5)
+            return ((1, 4), (3, 4))
+
+        self.game.game_state.move.handle_piece_move((6, 4), (4, 4))
+        self.game.bot_wait_started_at = 0
+        with patch.object(self.game.bot, 'choose_move', side_effect=think), patch(
+            'chess_app.chess_game.pg.time.get_ticks', return_value=2000
+        ):
+            try:
+                self.assertFalse(self.game._play_bot_turn())
+                self.assertTrue(entered.wait(2))
+                self.assertFalse(self.game._play_bot_turn())
+                self.assertTrue(self.game.handle_undo())
+            finally:
+                release.set()
+            self.game._bot_task[0].result(timeout=2)
+            self.game.game_state.move.handle_piece_move((6, 3), (4, 3))
+            self.game.bot_wait_started_at = 0
+            self.assertFalse(self.game._play_bot_turn())
+            self.assertEqual(len(self.game.game_state.move.notation), 1)
 
 
 if __name__ == '__main__':

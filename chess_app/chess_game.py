@@ -1,4 +1,7 @@
 import pygame as pg
+from concurrent.futures import Future
+from copy import deepcopy
+from threading import Thread
 
 from chess_app.config import (
     BOT_MOVE_DELAY_MS,
@@ -72,12 +75,15 @@ class ChessGame:
         """
         running = True
 
-        while running:
-            running = self.event_handler.process_events()
-            self.draw()
-            self.clock.tick(MAX_FPS)
-
-        pg.quit()
+        try:
+            while running:
+                running = self.event_handler.process_events()
+                if running:
+                    self.draw()
+                    self.clock.tick(MAX_FPS)
+        finally:
+            self._close_bots()
+            pg.quit()
 
     ####################################################################################
     # ------------------------------- MATCH MANAGEMENT ---------------------------------
@@ -173,14 +179,29 @@ class ChessGame:
         if active_bot is None:
             return False
 
-        move = active_bot.choose_move(self.game_state)
+        task = getattr(self, '_bot_task', None)
+        if task is None:
+            snapshot = deepcopy(self.game_state)
+            future = Future()
+            self._bot_task = (future, active_bot, self.game_state,
+                              getattr(self, '_bot_revision', 0))
+            Thread(target=self._think, args=(future, active_bot, snapshot),
+                   daemon=True).start()
+            return False
+        future, thinking_bot, state, revision = task
+        if not future.done():
+            return False
+        self._bot_task = None
+        if (thinking_bot is not active_bot or state is not self.game_state
+                or revision != getattr(self, '_bot_revision', 0)):
+            return False
+        move, promotion_choice = future.result()
         if move is None:
             return False
 
         outcome = self.game_state.move.handle_piece_move(*move)
 
         if outcome == MoveExecutor.PROMOTION_PENDING:
-            promotion_choice = getattr(active_bot, 'promotion_choice', 'Q')
             self.game_state.move.executor.handle_pawn_promotion(
                 promotion_choice
             )
@@ -190,6 +211,14 @@ class ChessGame:
         self.input_handler.animate_latest_move()
         self.bot_wait_started_at = None
         return True
+
+    @staticmethod
+    def _think(future, bot, snapshot):
+        try:
+            move = bot.choose_move(snapshot)
+            future.set_result((move, getattr(bot, 'promotion_choice', 'Q')))
+        except Exception as error:
+            future.set_exception(error)
 
     def handle_undo(self):
         """Undo one move in PvP or one complete player turn in bot mode."""
@@ -205,6 +234,7 @@ class ChessGame:
             return self.input_handler.handle_undo()
 
         moves_to_undo = 2 if self.game_state.white_to_move else 1
+        self._bot_revision = getattr(self, '_bot_revision', 0) + 1
         state_changed = False
 
         for _ in range(moves_to_undo):
@@ -296,9 +326,22 @@ class ChessGame:
 
     def _close_bots(self):
         """Release resources held by bots from the previous match."""
+        task = getattr(self, '_bot_task', None)
+        self._bot_task = None
         for bot in (getattr(self, 'white_bot', None), getattr(self, 'bot', None)):
             if bot is not None and hasattr(bot, 'close'):
-                bot.close()
+                future = task[0] if task is not None and task[1] is bot else None
+                Thread(target=self._finish_bot, args=(bot, future), daemon=True).start()
+        self.white_bot = None
+        self.bot = None
+
+    @staticmethod
+    def _finish_bot(bot, future):
+        try:
+            if future is not None:
+                future.result()
+        finally:
+            bot.close()
 
     def _print_match_separator(self):
         """
