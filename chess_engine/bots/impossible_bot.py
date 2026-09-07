@@ -139,12 +139,13 @@ class ImpossibleBot(BaseBot):
             raise RuntimeError('Stockfish response timed out') from error
 
     def _find_executable(self, requested_path):
+        project_root = Path(__file__).resolve().parents[2]
         candidates = [
             requested_path,
             os.environ.get(self.ENVIRONMENT_PATH),
             shutil.which('stockfish'),
-            Path('stockfish') / 'stockfish.exe',
-            Path('assets') / 'stockfish' / 'stockfish.exe'
+            project_root / 'stockfish' / 'stockfish.exe',
+            project_root / 'assets' / 'stockfish' / 'stockfish.exe'
         ]
         for candidate in candidates:
             if candidate and Path(candidate).is_file():

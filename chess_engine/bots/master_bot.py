@@ -27,25 +27,26 @@ class MasterBot(HardBot):
         return super()._minimax(game_state, depth, alpha, beta)
 
     def _quiescence(self, game_state, alpha, beta, depth):
-        """Continue searching forcing captures at an ordinary leaf."""
+        """Search captures, or all check evasions, within the depth limit."""
         stand_pat = self._evaluate(game_state)
         if depth == 0 or game_state.game_over:
             return stand_pat
 
-        captures = [
+        in_check = game_state.move_validator.in_check()
+        moves = [
             move for move in game_state.move.get_valid_moves()
-            if self._is_capture(game_state, move)
+            if in_check or self._is_capture(game_state, move)
         ]
-        if not captures:
+        if not moves:
             return stand_pat
 
         maximizing = piece_color_for_turn(game_state) == self.color
-        captures = self._ordered_moves(game_state, captures)
+        moves = self._ordered_moves(game_state, moves)
 
         if maximizing:
-            value = stand_pat
+            value = float('-inf') if in_check else stand_pat
             alpha = max(alpha, value)
-            for move in captures:
+            for move in moves:
                 if alpha >= beta:
                     break
                 child = self._state_after_move(game_state, move)
@@ -56,9 +57,9 @@ class MasterBot(HardBot):
                 alpha = max(alpha, value)
             return value
 
-        value = stand_pat
+        value = float('inf') if in_check else stand_pat
         beta = min(beta, value)
-        for move in captures:
+        for move in moves:
             if alpha >= beta:
                 break
             child = self._state_after_move(game_state, move)

@@ -69,9 +69,7 @@ class UndoExecutor:
         self.state_updater.restore_castling_rights_after_undo()
         self.state_updater.update_king_position(moved_piece, moved_square)
 
-        if len(self.move_logger.move_log) > 0:
-            self.move_logger.move_log.pop()
-
+        # Keep the event log chronological; notation holds the active moves.
         self._record_undo_log(last_move, moved_piece, moved_square, target_square, target_prev_piece)
 
         self.game_state.white_to_move = not self.game_state.white_to_move

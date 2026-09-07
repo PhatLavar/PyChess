@@ -230,6 +230,9 @@ class ChessGame:
 
         self.bot_wait_started_at = None
 
+        if self.game_state.promotion_pending:
+            return self.input_handler.handle_undo()
+
         if self.gamemode != self.BOT_MODE or self.bot is None:
             return self.input_handler.handle_undo()
 

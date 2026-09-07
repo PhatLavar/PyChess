@@ -2,11 +2,13 @@
 Named presentation constants shared across the Pygame UI.
 """
 
+from pathlib import Path
+
 BOARD_PIXEL_SIZE = 512
 BOARD_DIMENSION = 8
 SQUARE_SIZE = BOARD_PIXEL_SIZE // BOARD_DIMENSION
 
-PIECE_IMAGE_DIRECTORY = 'assets/images/chess_pieces'
+PIECE_IMAGE_DIRECTORY = Path(__file__).resolve().parent.parent / 'assets' / 'images' / 'chess_pieces'
 
 MOVE_ANIMATION_DURATION_MS = 200
 GAME_OVER_DELAY_MS = 3000

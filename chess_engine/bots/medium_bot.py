@@ -35,14 +35,13 @@ class MediumBot(BaseBot):
 
         self.color = turn_color(game_state.white_to_move)
         scored_moves = []
-        alpha = -self.CHECKMATE_SCORE
-        beta = self.CHECKMATE_SCORE
-
         for move in self._ordered_moves(game_state, valid_moves):
             child = self._state_after_move(game_state, move)
-            score = self._minimax(child, self.depth - 1, alpha, beta)
+            # Candidate selection needs exact scores, not cutoff bounds.
+            score = self._minimax(
+                child, self.depth - 1, float('-inf'), float('inf')
+            )
             scored_moves.append((score, move))
-            alpha = max(alpha, score)
 
         best_score = max(score for score, _ in scored_moves)
         candidates = [
@@ -63,7 +62,7 @@ class MediumBot(BaseBot):
         ordered_moves = self._ordered_moves(game_state, valid_moves)
 
         if maximizing:
-            value = -self.CHECKMATE_SCORE
+            value = float('-inf')
             for move in ordered_moves:
                 child = self._state_after_move(game_state, move)
                 value = max(value, self._minimax(child, depth - 1, alpha, beta))
@@ -72,7 +71,7 @@ class MediumBot(BaseBot):
                     break
             return value
 
-        value = self.CHECKMATE_SCORE
+        value = float('inf')
         for move in ordered_moves:
             child = self._state_after_move(game_state, move)
             value = min(value, self._minimax(child, depth - 1, alpha, beta))
