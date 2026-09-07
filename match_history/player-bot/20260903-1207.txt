@@ -1,0 +1,13 @@
+[MOVE] wP e2->e4
+[MOVE] bP e7->e5
+[MOVE] wK e1->e2
+[MOVE] bN g8->f6
+[MOVE] wK e2->e3
+[CHECK] bB f8->c5
+[MOVE] wK e3->d3
+[CAPTURE] bN f6->e4 x wP
+[CAPTURE] wK d3->e4 x bN
+[CHECK] bQ d8->h4
+[MOVE] wK e4->f5
+[CHECKMATE] bQ h4->f4
+[ENDMATCH] BLACK WINS!

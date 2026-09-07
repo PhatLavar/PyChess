@@ -1,0 +1,13 @@
+[MOVE] wP e2->e4
+[MOVE] bP e7->e5
+[MOVE] wK e1->e2
+[MOVE] bK e8->e7
+[MOVE] wK e2->e1
+[MOVE] bK e7->e8
+[MOVE] wK e1->e2
+[MOVE] bK e8->e7
+[MOVE] wK e2->e1
+[MOVE] bK e7->e8
+[MOVE] wK e1->e2
+[REPETITION] bK e8->e7
+[ENDMATCH] DRAW!

@@ -1,32 +1,45 @@
-# Stockfish Setup
+# Optional Stockfish engine
 
-The **Impossible** bot uses Stockfish when a compatible Stockfish executable
-is available in this folder.
+Provides the conventional local installation directory for the engine used by Impossible mode.
 
-## Windows installation
+[Project overview](../../README.md) · [Parent folder](../README.md)
 
-1. Visit the official Stockfish download page:
-   <https://stockfishchess.org/download/>
-2. Under **Windows (x64)**, download the **AVX2** `.zip` archive. This is the
-   recommended version for most modern Windows computers.
-3. Extract the downloaded archive.
-4. Find the Stockfish `.exe` file inside the extracted folder.
-5. Rename the executable to:
+## Files
 
-   ```text
-   stockfish.exe
-   ```
+| File | Purpose |
+| --- | --- |
+| README.md | This folder guide. |
+| `stockfish.exe` | Optional, locally installed Windows executable. It is ignored by Git and is not included when cloning the repository. |
 
-6. Copy it into this folder. The finished path should be:
+## Setup
 
-   ```text
-   PyChess/assets/stockfish/stockfish.exe
-   ```
+Download a Stockfish build compatible with your operating system and CPU from the [official download page](https://stockfishchess.org/download/). On Windows, extract the archive, rename the executable to `stockfish.exe`, and place it beside this README. The app must be able to execute it.
 
-If the AVX2 version does not run on your computer, download the generic
-**64-bit** Windows build from the same page instead, then follow the same
-extraction and renaming steps.
+You can instead point the application to another executable. In PowerShell, set the variable before starting the game:
 
-The executable is intentionally excluded from Git because it is large,
-platform-specific, and distributed under the GPLv3 license. When the file is
-not installed, Impossible mode uses PyChess's strongest built-in fallback bot.
+```powershell
+$env:PYCHESS_STOCKFISH_PATH = "C:\Tools\Stockfish\stockfish.exe"
+python chess.py
+```
+
+The variable applies to the current shell and processes launched from it. Use your real executable path.
+
+## Discovery order
+
+1. An explicit `ImpossibleBot(executable_path=...)` argument, for code-level use.
+2. The `PYCHESS_STOCKFISH_PATH` environment variable.
+3. A program named `stockfish` on `PATH`.
+4. `stockfish/stockfish.exe` under the project root, if present.
+5. `assets/stockfish/stockfish.exe` under the project root.
+
+The first candidate that exists as a file is selected. The two bundled-path candidates do not depend on the launch directory. An existing but incompatible executable can still fail during startup; discovery alone does not verify usability.
+
+## Runtime behavior
+
+The adapter starts a persistent UCI subprocess, configures one thread and a 64 MB hash, and normally requests 500 ms of thinking per move. Startup responses have a five-second deadline; move responses have the requested thinking time plus five seconds. Output is read through a background queue using UTF-8 with replacement for undecodable bytes.
+
+If a handled engine failure or timeout occurs, the adapter closes the process and uses `HardBot(depth=3, choice_window=0)`. Missing engines and unusable returned moves also lead to fallback. Impossible mode therefore does not guarantee Stockfish is active, and there is currently no on-screen engine-status indicator.
+
+Only the current FEN is sent, not the full move history. The app still adjudicates its own repetition and draw rules. Stockfish promotion suffixes are passed back to the application.
+
+The executable is an external dependency, not PyChess source. Consult its accompanying distribution and license information if redistributing it.

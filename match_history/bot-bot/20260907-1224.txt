@@ -1,0 +1,54 @@
+[MOVE] wN b1->c3
+[MOVE] bP e7->e5
+[MOVE] wN g1->f3
+[MOVE] bQ d8->f6
+[MOVE] wN c3->e4
+[MOVE] bQ f6->e7
+[MOVE] wP a2->a4
+[MOVE] bQ e7->b4
+[MOVE] wN e4->g3
+[MOVE] bQ b4->e7
+[MOVE] wN g3->e4
+[MOVE] bQ e7->b4
+[MOVE] wN e4->c3
+[MOVE] bQ b4->a5
+[MOVE] wP e2->e4
+[MOVE] bN g8->f6
+[MOVE] wB f1->b5
+[MOVE] bB f8->d6
+[MOVE] wR h1->f1
+[CASTLING] bK e8->g8; KINGSIDE
+[MOVE] wR f1->g1
+[MOVE] bP b7->b6
+[MOVE] wP h2->h3
+[MOVE] bB c8->b7
+[MOVE] wP d2->d3
+[MOVE] bP h7->h6
+[MOVE] wB c1->d2
+[MOVE] bP a7->a6
+[MOVE] wN c3->d5
+[MOVE] bB d6->b4
+[CAPTURE] wB d2->b4 x bB
+[CAPTURE] bQ a5->b5 x wB
+[CAPTURE] wP a4->b5 x bQ
+[CAPTURE] bN f6->d5 x wN
+[CAPTURE] wB b4->f8 x bR
+[MOVE] bN d5->f4
+[CAPTURE] wP b5->a6 x bP
+[CAPTURE] bK g8->f8 x wB
+[CAPTURE] wP a6->b7 x bB
+[CHECK] bN f4->g2 x wP
+[CAPTURE] wR g1->g2 x bN
+[CAPTURE] bR a8->a1 x wR
+[CAPTURE] wQ d1->a1 x bR
+[MOVE] bP f7->f6
+[MOVE] wQ a1->a8
+[MOVE] bP d7->d5
+[CHECK] wQ a8->b8 x bN
+[MOVE] bK f8->f7
+[CHECK] wQ b8->c7 x bP
+[MOVE] bK f7->e6
+[CAPTURE] wR g2->g7 x bP
+[MOVE] bP h6->h5
+[CHECKMATE] wQ c7->b6 x bP
+[ENDMATCH] WHITE WINS!
