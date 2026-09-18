@@ -6,7 +6,7 @@ The project explores how to build a complete chess application: legal moves, spe
 
 ## Current status
 
-The current implementation is being prepared for a first 1.0.0 release. This README does not create or announce a version tag. The automated suite currently contains 58 tests; its coverage is described in the [tests guide](tests/README.md).
+Current version: **1.0.1**. This patch release makes bot search failures recoverable, rejects malformed Stockfish moves, and removes temporary console output. The automated suite contains 60 tests; its coverage is described in the [tests guide](tests/README.md).
 
 ## Features
 
@@ -177,4 +177,4 @@ These are ideas, not committed release promises:
 
 Change chess rules in `chess_engine/`, application policies in `chess_app/`, and visual presentation in `chess_ui/`. Add a regression test when fixing a behavior bug, and update the relevant folder guide when adding, removing, or moving files.
 
-Version tagging and release publication are separate steps from documentation. Create a 1.0.0 tag only after the intended release changes are reviewed and committed.
+Version numbers follow [Semantic Versioning](https://semver.org/): increase the patch number for compatible fixes, the minor number for compatible new features, and the major number for incompatible changes. Git tags mark released commits; do not move an existing release tag.

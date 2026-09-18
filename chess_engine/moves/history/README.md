@@ -12,7 +12,7 @@ Separates reversible move records from human-readable events.
 | [__init__.py](__init__.py) | Exports MoveLogger. |
 | [move_logger.py](move_logger.py) | Facade that delegates structured records, event formatting, and square-name conversion. |
 | [history_logger.py](history_logger.py) | Appends dictionaries containing origins, destinations, captures, and any castling, en passant, or promotion data required by undo. |
-| [record_logger.py](record_logger.py) | Formats and prints move, capture, check, promotion, castling, undo, and end-match events while appending them to the event list. |
+| [record_logger.py](record_logger.py) | Formats move, capture, check, promotion, castling, undo, and end-match events and appends them to the event list. |
 | [notation_converter.py](notation_converter.py) | Converts internal coordinates into square names such as e4. |
 
 ## How this folder is used

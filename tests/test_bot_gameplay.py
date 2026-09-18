@@ -155,6 +155,18 @@ class BotGameplayTests(unittest.TestCase):
         self.assertFalse(self.game.handle_undo())
         self.assertEqual(self.game.input_handler.undo_count, 0)
 
+    def test_failed_bot_search_uses_legal_move(self):
+        self.game.gamemode = ChessGame.BOT_BOT_MODE
+        self.game.white_bot = EasyBot()
+        self.game.bot_wait_started_at = 0
+        with patch.object(self.game.white_bot, 'choose_move', side_effect=RuntimeError('search failed')), patch(
+            'chess_app.chess_game.pg.time.get_ticks', return_value=2000
+        ):
+            self.assertFalse(self.game._play_bot_turn())
+            self.game._bot_task[0].exception(timeout=2)
+            self.assertTrue(self.game._play_bot_turn())
+        self.assertEqual(len(self.game.game_state.move.notation), 1)
+
     def test_thinking_does_not_block_and_undo_discards_result(self):
         entered, release = Event(), Event()
         def think(snapshot):

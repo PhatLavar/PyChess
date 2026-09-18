@@ -60,6 +60,11 @@ class ImpossibleBotTests(unittest.TestCase):
             ((1, 4), (3, 4)),
         )
 
+    def test_invalid_uci_move_rejected(self):
+        for move in ('zzzz', 'e2e9', 'e2', 'e2e4extra'):
+            with self.subTest(move=move), self.assertRaises(ValueError):
+                ImpossibleBot._uci_to_move(move)
+
     def test_fen_tracks_turn_en_passant_and_move_number(self):
         state = GameState()
         state.move.handle_piece_move((6, 4), (4, 4))

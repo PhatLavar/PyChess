@@ -25,4 +25,4 @@ Uses Python's unittest framework to exercise rules, bots, application behavior, 
 
 ## How this folder is used
 
-From the project root, run `python -m unittest discover -s tests` using the environment where requirements.txt was installed. The suite currently has 58 tests. It needs pygame-ce; Stockfish timeout tests use a fake Python subprocess rather than requiring the real engine. Passing tests do not prove every chess position or visual interaction correct.
+From the project root, run `python -m unittest discover -s tests` using the environment where requirements.txt was installed. The suite currently has 60 tests. It needs pygame-ce; Stockfish timeout tests use a fake Python subprocess rather than requiring the real engine. Passing tests do not prove every chess position or visual interaction correct.

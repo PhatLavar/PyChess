@@ -73,7 +73,10 @@ class ImpossibleBot(BaseBot):
             if line == '':
                 raise RuntimeError('Stockfish stopped before returning a move')
             if line.startswith('bestmove '):
-                uci_move = line.split()[1]
+                parts = line.split()
+                if len(parts) < 2:
+                    raise ValueError('Stockfish returned no move')
+                uci_move = parts[1]
                 if uci_move == '(none)':
                     return None
                 if len(uci_move) >= 5:
@@ -202,7 +205,9 @@ class ImpossibleBot(BaseBot):
 
     @classmethod
     def _uci_to_move(cls, uci_move):
-        if len(uci_move) < 4:
+        if len(uci_move) not in (4, 5) or not ('a' <= uci_move[0] <= 'h'
+                and uci_move[1] in '12345678' and 'a' <= uci_move[2] <= 'h'
+                and uci_move[3] in '12345678'):
             raise ValueError(f'Invalid UCI move: {uci_move}')
         return cls._uci_to_square(uci_move[:2]), cls._uci_to_square(uci_move[2:4])
 

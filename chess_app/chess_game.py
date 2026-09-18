@@ -5,9 +5,6 @@ from threading import Thread
 
 from chess_app.config import (
     BOT_MOVE_DELAY_MS,
-    MATCH_HISTORY_SEPARATOR_CHARACTER,
-    MATCH_HISTORY_SEPARATOR_LENGTH,
-    MATCH_HISTORY_SEPARATOR_LINES,
     MAX_FPS,
 )
 from chess_app.event_handler import EventHandler
@@ -195,7 +192,12 @@ class ChessGame:
         if (thinking_bot is not active_bot or state is not self.game_state
                 or revision != getattr(self, '_bot_revision', 0)):
             return False
-        move, promotion_choice = future.result()
+        try:
+            move, promotion_choice = future.result()
+        except Exception:
+            # A failed search must not close the game window.
+            move = EasyBot().choose_move(self.game_state)
+            promotion_choice = 'Q'
         if move is None:
             return False
 
@@ -249,9 +251,8 @@ class ChessGame:
     
     def rematch(self):
         """
-        Print a terminal separator and start a fresh match.
+        Start a fresh match.
         """
-        self._print_match_separator()
         self._create_match()
 
     def _create_match(self):
@@ -345,18 +346,6 @@ class ChessGame:
                 future.result()
         finally:
             bot.close()
-
-    def _print_match_separator(self):
-        """
-        Print three separator lines without modifying either move logger.
-        """
-        separator = (
-            MATCH_HISTORY_SEPARATOR_CHARACTER
-            * MATCH_HISTORY_SEPARATOR_LENGTH
-        )
-
-        for _ in range(MATCH_HISTORY_SEPARATOR_LINES):
-            print(separator)
 
     def change_gamemode(self, gamemode):
         """
