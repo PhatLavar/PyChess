@@ -61,9 +61,33 @@ class ImpossibleBotTests(unittest.TestCase):
         )
 
     def test_invalid_uci_move_rejected(self):
-        for move in ('zzzz', 'e2e9', 'e2', 'e2e4extra'):
+        for move in ('zzzz', 'e2e9', 'e2', 'e2e4extra', 'a7a8x', 'a7a8k', 'a7a8Q'):
             with self.subTest(move=move), self.assertRaises(ValueError):
                 ImpossibleBot._uci_to_move(move)
+
+    def test_uci_promotion_conversion(self):
+        for suffix in 'qrbn':
+            with self.subTest(suffix=suffix):
+                self.assertEqual(
+                    ImpossibleBot._uci_to_move('a7a8' + suffix),
+                    ((1, 0), (0, 0)),
+                )
+
+    def test_unusable_engine_move_resets_fallback_promotion(self):
+        state = GameState()
+        fallback_move = ((6, 4), (4, 4))
+        for uci_move in ('a7a8x', 'a7a8n', 'z7a8n'):
+            with self.subTest(move=uci_move):
+                fallback = Mock()
+                fallback.choose_move.return_value = fallback_move
+                bot = ImpossibleBot(fallback=fallback)
+                bot.executable_path = sys.executable
+                with patch.object(bot, '_ensure_process'), patch.object(
+                    bot, '_send'
+                ), patch.object(bot, '_read_line', return_value='bestmove ' + uci_move):
+                    self.assertEqual(bot.choose_move(state), fallback_move)
+                fallback.choose_move.assert_called_once_with(state)
+                self.assertEqual(bot.promotion_choice, 'Q')
 
     def test_fen_tracks_turn_en_passant_and_move_number(self):
         state = GameState()

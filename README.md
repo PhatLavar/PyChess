@@ -6,7 +6,7 @@ The project explores how to build a complete chess application: legal moves, spe
 
 ## Current status
 
-Current version: **1.0.1**. This patch release makes bot search failures recoverable, rejects malformed Stockfish moves, and removes temporary console output. The automated suite contains 60 tests; its coverage is described in the [tests guide](tests/README.md).
+Current version: **1.0.1**. This patch release makes bot search failures recoverable, rejects malformed Stockfish moves, and removes temporary console output. The automated suite contains 62 tests; its coverage is described in the [tests guide](tests/README.md).
 
 ## Features
 
@@ -127,7 +127,7 @@ A filename such as `20260907-1224.txt` records the local completion time to the 
 
 The format contains events such as `[MOVE]`, `[CAPTURE]`, `[CHECK]`, `[CASTLING]`, `[PROMOTION]`, `[UNDO]`, and `[ENDMATCH]`. Moves and later undo actions are retained chronologically. These logs are **not PGN** and cannot be loaded to resume a game.
 
-Closing an unfinished match normally records `TERMINATED`. No file is saved when no completed moves remain applied. A forced process stop or crash may bypass the normal save path. Personal log files are ignored by Git; the folder guides are included.
+Closing an unfinished match normally records `TERMINATED`. No file is saved when no completed moves remain applied. A forced process stop or crash may bypass the normal save path. New personal log files are ignored by Git; existing tracked examples and the folder guides remain included.
 
 ## Verification
 

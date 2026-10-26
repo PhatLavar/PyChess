@@ -21,4 +21,4 @@ Stores local UTF-8 event logs written when a match finishes or the window closes
 
 ## How this folder is used
 
-Current files are grouped by matchup. Older timestamped .txt files directly in this folder are historical output from earlier layouts. Names use YYYYMMDD-HHMM.txt in local time, with -2, -3, etc. for collisions. Each file contains chronological events and the result; a normal early window close records TERMINATED. These are not PGN files or resumable saves. A match with no remaining applied moves is not saved. Personal .txt files are ignored by Git, while these guides are included.
+Current files are grouped by matchup. Older timestamped .txt files directly in this folder are historical output from earlier layouts. Names use YYYYMMDD-HHMM.txt in local time, with -2, -3, etc. for collisions. Each file contains chronological events and the result; a normal early window close records TERMINATED. These are not PGN files or resumable saves. A match with no remaining applied moves is not saved. New personal .txt files are ignored by Git, while existing tracked examples and these guides remain included.

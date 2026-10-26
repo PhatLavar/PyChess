@@ -45,6 +45,7 @@ class ImpossibleBot(BaseBot):
             except (OSError, RuntimeError, ValueError):
                 self.close()
 
+        self.promotion_choice = 'Q'
         return self.fallback.choose_move(game_state)
 
     def close(self):
@@ -79,9 +80,10 @@ class ImpossibleBot(BaseBot):
                 uci_move = parts[1]
                 if uci_move == '(none)':
                     return None
-                if len(uci_move) >= 5:
+                move = self._uci_to_move(uci_move)
+                if len(uci_move) == 5:
                     self.promotion_choice = uci_move[4].upper()
-                return self._uci_to_move(uci_move)
+                return move
 
     def _ensure_process(self):
         if self.process is not None and self.process.poll() is None:
@@ -207,7 +209,8 @@ class ImpossibleBot(BaseBot):
     def _uci_to_move(cls, uci_move):
         if len(uci_move) not in (4, 5) or not ('a' <= uci_move[0] <= 'h'
                 and uci_move[1] in '12345678' and 'a' <= uci_move[2] <= 'h'
-                and uci_move[3] in '12345678'):
+                and uci_move[3] in '12345678') or (
+                len(uci_move) == 5 and uci_move[4] not in 'qrbn'):
             raise ValueError(f'Invalid UCI move: {uci_move}')
         return cls._uci_to_square(uci_move[:2]), cls._uci_to_square(uci_move[2:4])
 
