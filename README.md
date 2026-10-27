@@ -6,7 +6,7 @@ The project explores how to build a complete chess application: legal moves, spe
 
 ## Current status
 
-Current version: **1.0.1**. This patch release makes bot search failures recoverable, rejects malformed Stockfish moves, and removes temporary console output. The automated suite contains 62 tests; its coverage is described in the [tests guide](tests/README.md).
+Current version: **1.0.2**. This patch release validates Stockfish promotion suffixes, resets fallback promotion choices, and consolidates asset and match-history documentation. The automated suite contains 62 tests; its coverage is described in the [tests guide](tests/README.md).
 
 ## Features
 
