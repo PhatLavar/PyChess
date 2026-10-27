@@ -19,4 +19,4 @@ Implements the five difficulty choices behind a shared choose_move(game_state) i
 
 ## How this folder is used
 
-The application runs thinking off the UI thread. Built-in search copies states and can be expensive; depth is measured in half-moves (plies). Medium and Hard allow near-best randomness. Master still randomly breaks exact ties despite its zero choice window. Built-in bots promote to queens; Stockfish may select an underpromotion. Difficulty names are descriptive, not measured ratings. See the [Stockfish setup guide](../../assets/stockfish/README.md).
+The application runs thinking off the UI thread. Built-in search copies states and can be expensive; depth is measured in half-moves (plies). Medium and Hard allow near-best randomness. Master still randomly breaks exact ties despite its zero choice window. Built-in bots promote to queens; Stockfish may select an underpromotion. Difficulty names are descriptive, not measured ratings. See the [Stockfish setup guide](../../assets/README.md#stockfish-setup).

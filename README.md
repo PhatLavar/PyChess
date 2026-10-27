@@ -41,7 +41,7 @@ python chess.py
 
 Keep the `assets/images/chess_pieces/` folder with the project. Piece images and bundled Stockfish paths resolve relative to the project, so launching the script by its full path from another directory is supported.
 
-Stockfish is optional and its executable is excluded from Git. See the [Stockfish setup guide](assets/stockfish/README.md) to install it or configure an existing executable. Without a usable engine, Impossible mode falls back to the custom Hard bot.
+Stockfish is optional and its executable is excluded from Git. See the [Stockfish setup guide](assets/README.md#stockfish-setup) to install it or configure an existing executable. Without a usable engine, Impossible mode falls back to the custom Hard bot.
 
 ## How to play
 
@@ -76,11 +76,11 @@ Undo is disabled in Bot–Bot and after game over. Input cannot move a piece dur
 
 A ply is one player's move. Difficulty labels are not Elo ratings, and Master is not guaranteed to outperform Hard in every position. Medium and Hard can select near-best scores. Master and the fallback use zero score tolerance but can still break exact ties randomly. Built-in bots promote to queens; Stockfish can choose another piece.
 
-The [bot guide](chess_engine/bots/README.md) explains implementation boundaries and the [Stockfish guide](assets/stockfish/README.md) explains discovery, timeouts, and fallback.
+The [bot guide](chess_engine/bots/README.md) explains implementation boundaries and the [Stockfish guide](assets/README.md#stockfish-setup) explains discovery, timeouts, and fallback.
 
 ## Project map
 
-Each maintained folder has its own README with its purpose, immediate files, and links to subfolders.
+Application, engine, UI, and test folders have README guides. Asset setup is consolidated in `assets/README.md`; generated match logs are described below.
 
 | Path | Purpose |
 | --- | --- |
@@ -92,7 +92,7 @@ Each maintained folder has its own README with its purpose, immediate files, and
 | [chess_ui/](chess_ui/README.md) | Board rendering, highlights, animations, menus, and presentation settings. |
 | [assets/](assets/README.md) | Required piece images and optional Stockfish installation. |
 | [tests/](tests/README.md) | Automated behavior and regression tests. |
-| [match_history/](match_history/README.md) | Locally generated logs and documentation of their format. |
+| `match_history/` | Locally generated logs; see [Match history](#match-history) for their format. |
 | README.md | This project overview and starting guide. |
 
 Generated folders such as `.venv/`, `__pycache__/`, and Git's internal `.git/` are not project modules and do not receive folder READMEs.
@@ -127,7 +127,7 @@ A filename such as `20260907-1224.txt` records the local completion time to the 
 
 The format contains events such as `[MOVE]`, `[CAPTURE]`, `[CHECK]`, `[CASTLING]`, `[PROMOTION]`, `[UNDO]`, and `[ENDMATCH]`. Moves and later undo actions are retained chronologically. These logs are **not PGN** and cannot be loaded to resume a game.
 
-Closing an unfinished match normally records `TERMINATED`. No file is saved when no completed moves remain applied. A forced process stop or crash may bypass the normal save path. New personal log files are ignored by Git; existing tracked examples and the folder guides remain included.
+Closing an unfinished match normally records `TERMINATED`. No file is saved when no completed moves remain applied. A forced process stop or crash may bypass the normal save path. New personal log files are ignored by Git; existing tracked examples remain included. The ignore rule covers `.txt` files under `match_history/`, not the entire folder.
 
 ## Verification
 
