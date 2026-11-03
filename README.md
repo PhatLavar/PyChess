@@ -6,7 +6,7 @@ The project explores how to build a complete chess application: legal moves, spe
 
 ## Current status
 
-Current version: **1.0.2**. This patch release validates Stockfish promotion suffixes, resets fallback promotion choices, and consolidates asset and match-history documentation. The automated suite contains 62 tests; its coverage is described in the [tests guide](tests/README.md).
+Current version: **1.0.3**. This patch release restores terminal logging for moves, captures, checks, promotions, castling, undo, and match results. Bot search simulations remain silent. The automated suite contains 64 tests; its coverage is described in the [tests guide](tests/README.md).
 
 ## Features
 
@@ -20,6 +20,7 @@ Current version: **1.0.2**. This patch release validates Stockfish promotion suf
 - **Responsive bot turns:** searches run in background threads using independent position snapshots. Results from an undone or replaced position are discarded.
 - **Optional Stockfish:** UCI integration, response timeouts, promotion selection, and built-in fallback.
 - **Local match history:** chronological text logs grouped by matchup, with collision-safe filenames.
+- **Terminal logging:** live move and match events, for example `[MOVE] wP e2->e4`.
 
 ## Requirements and setup
 
