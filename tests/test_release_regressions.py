@@ -1,4 +1,6 @@
 import os
+from contextlib import redirect_stdout
+from io import StringIO
 from pathlib import Path
 import random
 from tempfile import TemporaryDirectory
@@ -31,6 +33,28 @@ def sparse_state(pieces):
 
 
 class ReleaseRegressionTests(unittest.TestCase):
+    def test_terminal_events_match_chronological_history(self):
+        state = GameState()
+        output = StringIO()
+        with redirect_stdout(output):
+            state.move.handle_piece_move((6, 4), (4, 4))
+            state.move.handle_undo_move()
+            state.move.record_end_match('TERMINATED')
+        self.assertEqual(output.getvalue().splitlines(), [
+            '[MOVE] wP e2->e4', '[UNDO] wP e4->e2',
+            '[ENDMATCH] TERMINATED',
+        ])
+        self.assertEqual(output.getvalue().splitlines(), state.move.move_log)
+
+    def test_bot_search_keeps_terminal_silent(self):
+        state = GameState()
+        output = StringIO()
+        with redirect_stdout(output):
+            move = MediumBot(depth=1).choose_move(state)
+        self.assertIn(move, state.move.get_valid_moves())
+        self.assertEqual(output.getvalue(), '')
+        self.assertEqual(state.move.move_log, [])
+
     def test_promotion_cancel_preserves_previous_bot_move(self):
         state = sparse_state([((7, 4), 'wK'), ((0, 4), 'bK'), ((1, 0), 'wP')])
         state.white_to_move = False

@@ -3,7 +3,7 @@ from chess_engine.utilities import EMP
 
 class RecordLogger:
     """
-    Build human-readable move-log entries.
+    Build and print human-readable move-log entries.
     """
 
     def __init__(self, move_log, notation_converter):
@@ -146,5 +146,6 @@ class RecordLogger:
     ####################################################################################
 
     def _append_log(self, move_log):
-        """Store one completed log string."""
+        """Store and print one completed log string."""
         self.move_log.append(move_log)
+        print(move_log, flush=True)
